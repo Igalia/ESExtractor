@@ -126,7 +126,7 @@ ESExtractor::readFile (int32_t data_size, int32_t pos, bool append)
 
 
 std::vector < unsigned char >
-ESExtractor::sliceBuffer (std::vector < unsigned char >buffer, uint start,
+ESExtractor::prepareFrame (std::vector < unsigned char >buffer, uint start,
     uint end)
 {
   int frame_start = start;
@@ -139,9 +139,12 @@ ESExtractor::sliceBuffer (std::vector < unsigned char >buffer, uint start,
     throw
         std::invalid_argument ("start position must be less than end position");
   }
-
-  return std::vector < unsigned char >(buffer.begin () + frame_start,
+  std::vector < unsigned char >frame =
+      std::vector < unsigned char >(buffer.begin () + frame_start,
       buffer.begin () + end);
+  std::vector < unsigned char >start_code = { 0x00, 0x00, 0x00, 0x01 };
+  frame.insert (frame.begin (), start_code.begin (), start_code.end ());
+  return frame;
 }
 
 void
@@ -297,7 +300,7 @@ ESExtractor::readStream ()
         return ES_EXTRACTOR_RESULT_NO_PACKET;
       } else {
         if (m_frameState == ES_EXTRACTOR_FRAME_STATE_END) {
-          m_nextFrame = sliceBuffer (m_buffer, m_frameStartPos, pos);
+          m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, pos);
           m_frameCount++;
           DBG ("Found a new frame (%d) of size %ld at pos %d", m_frameCount,
               m_nextFrame.size (), m_filePosition + m_frameStartPos);
@@ -315,7 +318,7 @@ ESExtractor::readStream ()
             if (m_filePosition + m_bufferPosition >= m_fileSize) {
 
               m_nextFrame =
-                  sliceBuffer (m_buffer, m_frameStartPos, m_buffer.size ());
+                  prepareFrame (m_buffer, m_frameStartPos, m_buffer.size ());
               m_frameCount++;
               DBG ("Found a last frame (%d) of size %ld at pos %d",
                   m_frameCount, m_nextFrame.size (),
@@ -332,7 +335,6 @@ ESExtractor::readStream ()
   }
   return ES_EXTRACTOR_RESULT_NO_PACKET;
 }
-
 
 ESExtractor *
 es_extractor_new (const char *uri)
@@ -353,11 +355,12 @@ ESExtractorResult
 es_extractor_read_frame (ESExtractor * extractor, uint8_t ** packet, int *size)
 {
   ESExtractorResult res;
-  if (extractor->getNextFrame ()->size () == 0)
-    return ES_EXTRACTOR_RESULT_EOS;
+  std::vector < unsigned char >*nextFrame = extractor->getNextFrame ();
+  if (nextFrame->size () == 0)
+    res = ES_EXTRACTOR_RESULT_EOS;
+  *packet = nextFrame->data ();
+  *size = nextFrame->size ();
   res = extractor->readStream ();
-  *packet = extractor->getNextFrame ()->data ();
-  *size = extractor->getNextFrame ()->size ();
   return res;
 }
 

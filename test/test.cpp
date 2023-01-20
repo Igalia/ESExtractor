@@ -16,8 +16,11 @@
  */
 
 #include "esextractor.h"
+#include <fstream>
 
-const char* frameTypeName(ESExtractorVideoCodec codec_id) {
+const char *
+frameTypeName (ESExtractorVideoCodec codec_id)
+{
   switch (codec_id) {
     case ES_EXTRACTOR_VIDEO_CODEC_H264:
       return "h264";
@@ -36,7 +39,8 @@ main (int argc, char *argv[])
   uint8_t *data = nullptr;
   int data_size = 0;
   const char *fileName;
-  const char* frame_type_name;
+  const char *frame_type_name;
+  std::ofstream myfile;
 
   if (argc < 2) {
     std::cerr << "Error: No input file specified" << std::endl;
@@ -44,20 +48,27 @@ main (int argc, char *argv[])
   }
 
   fileName = argv[1];
+  if (argc > 2) {
+    myfile.open (argv[2], std::ofstream::binary);
+  }
 
   esextractor = es_extractor_new (fileName);
   if (!esextractor) {
-    ERR("Unable to discover a compatible stream. Exit");
+    ERR ("Unable to discover a compatible stream. Exit");
     return -1;
   }
 
-  frame_type_name = frameTypeName(es_extractor_video_codec (esextractor));
+  frame_type_name = frameTypeName (es_extractor_video_codec (esextractor));
   while ((res = es_extractor_read_frame (esextractor, &data,
               &data_size)) < ES_EXTRACTOR_RESULT_EOS) {
     INFO ("Got a %s frame of size %d", frame_type_name, data_size);
+    if (argc > 2)
+      myfile.write ((const char *) data, data_size);
   }
-  INFO ("Got %d %s frame(s)", es_extractor_frame_count (esextractor), frame_type_name);
+  INFO ("Got %d %s frame(s)", es_extractor_frame_count (esextractor),
+      frame_type_name);
   es_extractor_teardown (esextractor);
-
+  if (argc > 2)
+    myfile.close ();
   return 0;
 }

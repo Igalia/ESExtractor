@@ -67,7 +67,7 @@ private:
   std::vector<unsigned char> readFile(int32_t data_size, int32_t pos = 0, bool append = false );
   
   void printNalType(int nalUnitType);
-  std::vector<unsigned char> sliceBuffer(std::vector<unsigned char> buffer, uint start, uint end);
+  std::vector<unsigned char> prepareFrame(std::vector<unsigned char> buffer, uint start, uint end);
   int parseStream(int32_t start_position);
   void printBufferHex(std::vector<unsigned char> buffer);
   bool isH264(std::vector<unsigned char> buffer);
