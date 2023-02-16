@@ -12,7 +12,7 @@ esextractor = shared_library(
   'esextractor',
   esextractor_sources,
   include_directories: include_directories('.'),
-  c_args: ['-DBUILDING_ESEXTRACTOR'],
+  c_args: ['-DBUILDING_ES_EXTRACTOR'],
   install: true,
 #  vs_module_defs: 'esextractor.def',
 )

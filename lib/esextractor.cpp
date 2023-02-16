@@ -41,8 +41,7 @@ isMPEGHeader (std::vector < unsigned char >buffer)
 {
   if (buffer.size () < MPEG_HEADER_SIZE)
     return false;
-  bool
-      found = (buffer[0] == 0x00 && buffer[1] == 0x00 && buffer[2] == 0x01);
+  bool found = (buffer[0] == 0x00 && buffer[1] == 0x00 && buffer[2] == 0x01);
   if (found) {
     DBG ("Found MPEG header");
   }
@@ -52,7 +51,8 @@ isMPEGHeader (std::vector < unsigned char >buffer)
 int32_t
 scanMPEGHeader (std::vector < unsigned char >buffer, int32_t pos)
 {
-  for (uint i = pos; i < buffer.size (); i++) {
+
+  for (uint32_t i = pos; i < buffer.size (); i++) {
     bool
         found = (buffer[i] == 0x00 && buffer[i + 1] == 0x00
         && buffer[i + 2] == 0x01);
@@ -115,21 +115,21 @@ ESExtractor::readFile (int32_t data_size, int32_t pos, bool append)
   m_readSize += read_size;
   if (append) {
     m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
-    DBG ("ReadFile: Append %d to a buffer of new size %ld read %ld", data_size,
+    DBG ("ReadFile: Append %d to a buffer of new size %zd read %zd", data_size,
         m_buffer.size (), read_size);
   } else {
     m_buffer = buffer;
-    DBG ("ReadFile: Read buffer %d of size read %ld", data_size, read_size);
+    DBG ("ReadFile: Read buffer %d of size read %zd", data_size, read_size);
   }
   return m_buffer;
 }
 
 
 std::vector < unsigned char >
-ESExtractor::prepareFrame (std::vector < unsigned char >buffer, uint start,
-    uint end)
+ESExtractor::prepareFrame (std::vector < unsigned char >buffer, uint32_t start,
+    uint32_t end)
 {
-  int frame_start = start;
+  uint32_t frame_start = start;
   if (start > buffer.size () || end > buffer.size ()) {
     throw
         std::out_of_range
@@ -302,7 +302,7 @@ ESExtractor::readStream ()
         if (m_frameState == ES_EXTRACTOR_FRAME_STATE_END) {
           m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, pos);
           m_frameCount++;
-          DBG ("Found a new frame (%d) of size %ld at pos %d", m_frameCount,
+          DBG ("Found a new frame (%d) of size %zd at pos %d", m_frameCount,
               m_nextFrame.size (), m_filePosition + m_frameStartPos);
           m_bufferPosition = m_frameStartPos = pos;
           m_frameState = ES_EXTRACTOR_FRAME_STATE_NONE;
@@ -320,7 +320,7 @@ ESExtractor::readStream ()
               m_nextFrame =
                   prepareFrame (m_buffer, m_frameStartPos, m_buffer.size ());
               m_frameCount++;
-              DBG ("Found a last frame (%d) of size %ld at pos %d",
+              DBG ("Found a last frame (%d) of size %zd at pos %d",
                   m_frameCount, m_nextFrame.size (),
                   m_filePosition + m_frameStartPos);
               m_eos = true;
