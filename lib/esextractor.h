@@ -30,6 +30,21 @@
 #define INFO(FMT, ...) printf(FMT "\n", ##__VA_ARGS__)
 #define ERR(FMT, ...) printf("ERROR: " FMT "\n", ##__VA_ARGS__)
 
+#if defined _WIN32 || defined __CYGWIN__
+  #ifdef BUILDING_ES_EXTRACTOR
+    #define ES_EXTRACTOR_API __declspec(dllexport)
+  #else
+    #define ES_EXTRACTOR_API __declspec(dllimport)
+  #endif
+#else
+  #ifdef BUILDING_ES_EXTRACTOR
+      #define ES_EXTRACTOR_API __attribute__ ((visibility ("default")))
+  #else
+      #define ES_EXTRACTOR_API
+  #endif
+#endif
+
+
 typedef enum ESExtractorVideoCodec {
   ES_EXTRACTOR_VIDEO_CODEC_UNKNOWN = 0,
   ES_EXTRACTOR_VIDEO_CODEC_H264,
@@ -62,12 +77,12 @@ public:
   void reset ();
   std::vector<unsigned char>* getNextFrame() { return &m_nextFrame;}
   int frameCount() { return m_frameCount;}
-  
+
 private:
   std::vector<unsigned char> readFile(int32_t data_size, int32_t pos = 0, bool append = false );
-  
+
   void printNalType(int nalUnitType);
-  std::vector<unsigned char> prepareFrame(std::vector<unsigned char> buffer, uint start, uint end);
+  std::vector<unsigned char> prepareFrame(std::vector<unsigned char> buffer, uint32_t start, uint32_t end);
   int parseStream(int32_t start_position);
   void printBufferHex(std::vector<unsigned char> buffer);
   bool isH264(std::vector<unsigned char> buffer);
@@ -76,7 +91,7 @@ private:
   std::ifstream m_file;
   int32_t m_filePosition;
   int32_t m_fileSize;
-  
+
   int32_t m_bufferPosition;
   int32_t m_frameStartPos;
   int32_t m_frameStartCodeLen;
@@ -95,14 +110,19 @@ private:
 extern "C" {
 #endif
 
+ES_EXTRACTOR_API
 ESExtractor * es_extractor_new (const char * uri);
 
+ES_EXTRACTOR_API
 ESExtractorResult es_extractor_read_frame (ESExtractor * demuxer, uint8_t ** packet, int  * size);
 
+ES_EXTRACTOR_API
 ESExtractorVideoCodec es_extractor_video_codec(ESExtractor * demuxer);
 
+ES_EXTRACTOR_API
 int es_extractor_frame_count (ESExtractor * extractor);
 
+ES_EXTRACTOR_API
 void es_extractor_teardown (ESExtractor * demuxer);
 
 #ifdef __cplusplus
