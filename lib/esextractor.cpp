@@ -62,6 +62,15 @@ scanMPEGHeader (std::vector < unsigned char >buffer, int32_t pos)
   return -1;
 }
 
+static void
+printBufferHex (unsigned char *buffer, int size)
+{
+  for (int i = 0; i< size; i++) {
+      DUMP ("0x%.2X ", buffer[i]);
+  }
+  DUMP ("\n");
+}
+
 ESExtractor::ESExtractor ()
 {
   reset ();
@@ -105,7 +114,7 @@ ESExtractor::readFile (int32_t data_size, int32_t pos, bool append)
   if (!m_fileSize)
     m_fileSize = m_file.tellg ();
 
-  DBG ("Read %ld at pos %ld append %d", data_size, pos, append);
+  DBG ("Read %d at pos %d append %d", data_size, pos, append);
   m_file.seekg (pos, std::ios::beg);
   std::vector < unsigned char >buffer;
   buffer.resize (data_size);
@@ -145,15 +154,6 @@ ESExtractor::prepareFrame (std::vector < unsigned char >buffer, uint32_t start,
   std::vector < unsigned char >start_code = { 0x00, 0x00, 0x00, 0x01 };
   frame.insert (frame.begin (), start_code.begin (), start_code.end ());
   return frame;
-}
-
-void
-ESExtractor::printBufferHex (std::vector < unsigned char >buffer)
-{
-for (unsigned char data:buffer) {
-    std::cout << std::hex << (int) data << " ";
-  }
-  std::cout << std::endl;
 }
 
 bool
@@ -260,7 +260,7 @@ int32_t ESExtractor::parseStream (int32_t start_position)
     } else if (m_mpeg_detected && m_codec != ES_EXTRACTOR_VIDEO_CODEC_UNKNOWN) {
       pos = scanMPEGHeader (m_buffer, pos);
       if (pos >= 0) {
-        DBG ("Found a NAL delimiter, stop pos %ld ", pos);
+        DBG ("Found a NAL delimiter, stop pos %d ", pos);
         if (m_frameState == ES_EXTRACTOR_FRAME_STATE_NONE) {
           m_frameState = ES_EXTRACTOR_FRAME_STATE_START;
           pos += 3;
@@ -352,15 +352,26 @@ es_extractor_new (const char *uri)
 }
 
 ESExtractorResult
-es_extractor_read_frame (ESExtractor * extractor, uint8_t ** packet, int *size)
+es_extractor_read_frame (ESExtractor * extractor, ESPacket** packet)
 {
   ESExtractorResult res;
-  std::vector < unsigned char >*nextFrame = extractor->getNextFrame ();
-  if (nextFrame->size () == 0)
+  std::vector<unsigned char>* currentFrame;
+  extractor->setCurrentFrame();
+  currentFrame = extractor->getCurrentFrame ();
+  
+  *packet = new ESPacket();
+  if (currentFrame->size() == 0) {
     res = ES_EXTRACTOR_RESULT_EOS;
-  *packet = nextFrame->data ();
-  *size = nextFrame->size ();
+    return res;
+  }
+
+  (*packet)->data = currentFrame->data();
+  (*packet)->data_size = currentFrame->size();
+
+  printBufferHex((*packet)->data, (*packet)->data_size);
+ 
   res = extractor->readStream ();
+  printBufferHex((*packet)->data, (*packet)->data_size);
   return res;
 }
 
@@ -374,6 +385,12 @@ int
 es_extractor_frame_count (ESExtractor * extractor)
 {
   return extractor->frameCount ();
+}
+
+
+void es_extractor_clear_packet (ESPacket * pkt)
+{
+  delete pkt;
 }
 
 void
