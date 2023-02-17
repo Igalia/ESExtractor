@@ -24,11 +24,14 @@
 
 #ifdef _DEBUG
 #   define DBG(FMT, ...) printf(FMT "\n", ##__VA_ARGS__)
+#   define DUMP(FMT, ...) printf(FMT, ##__VA_ARGS__)
 #else
 #   define DBG(FMT, ...)
+#   define DUMP(FMT, ...)
 #endif
 #define INFO(FMT, ...) printf(FMT "\n", ##__VA_ARGS__)
 #define ERR(FMT, ...) printf("ERROR: " FMT "\n", ##__VA_ARGS__)
+
 
 #if defined _WIN32 || defined __CYGWIN__
   #ifdef BUILDING_ES_EXTRACTOR
@@ -66,6 +69,16 @@ typedef enum _ESExtractorFrameState {
   ES_EXTRACTOR_FRAME_STATE_START,
   ES_EXTRACTOR_FRAME_STATE_END,
 } ESExtractorFrameState;
+
+typedef struct _ESPacket {
+    uint8_t * data;
+    int32_t data_size;
+    int32_t packet_number;
+    int64_t pts;
+    int64_t dts;
+    int64_t duration;
+} ESPacket;
+
 class ESExtractor {
 public:
   ESExtractor();
@@ -75,7 +88,8 @@ public:
   ESExtractorVideoCodec getCodec() { return m_codec;};
   bool openFile(const char* fileName);
   void reset ();
-  std::vector<unsigned char>* getNextFrame() { return &m_nextFrame;}
+  std::vector<unsigned char>* getCurrentFrame() { return &m_currentFrame;}
+  void setCurrentFrame() {m_currentFrame = m_nextFrame;}
   int frameCount() { return m_frameCount;}
 
 private:
@@ -84,7 +98,6 @@ private:
   void printNalType(int nalUnitType);
   std::vector<unsigned char> prepareFrame(std::vector<unsigned char> buffer, uint32_t start, uint32_t end);
   int parseStream(int32_t start_position);
-  void printBufferHex(std::vector<unsigned char> buffer);
   bool isH264(std::vector<unsigned char> buffer);
   bool isH265(std::vector<unsigned char> buffer);
 
@@ -103,6 +116,7 @@ private:
   bool m_eos;
   std::vector<unsigned char> m_buffer;
   std::vector<unsigned char> m_nextFrame;
+  std::vector<unsigned char> m_currentFrame;
 };
 
 
@@ -114,7 +128,10 @@ ES_EXTRACTOR_API
 ESExtractor * es_extractor_new (const char * uri);
 
 ES_EXTRACTOR_API
-ESExtractorResult es_extractor_read_frame (ESExtractor * demuxer, uint8_t ** packet, int  * size);
+ESExtractorResult es_extractor_read_frame (ESExtractor * demuxer, ESPacket ** pkt);
+
+ES_EXTRACTOR_API
+void es_extractor_clear_packet (ESPacket * pkt);
 
 ES_EXTRACTOR_API
 ESExtractorVideoCodec es_extractor_video_codec(ESExtractor * demuxer);
