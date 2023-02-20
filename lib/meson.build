@@ -1,5 +1,6 @@
 esextractor_sources = files(
   'esextractor.cpp',
+  'esenalu.cpp',
 )
 
 esextractor_headers = files(

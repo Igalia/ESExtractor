@@ -31,21 +31,44 @@ frameTypeName (ESExtractorVideoCodec codec_id)
   };
 }
 
-void dumpFrame(ESExtractor *esextractor, uint8_t *buffer,  int data_size) {
-    const char * frame_type_name = frameTypeName (es_extractor_video_codec (esextractor));
-    INFO ("Got a %s frame of size %d", frame_type_name, data_size);
-    for (int i = 0; i < data_size; i++) {
-        DUMP ("0x%.2X ", buffer[i]);
-    }
-    DUMP ("\n");
+void
+dumpFrame (ESExtractor * esextractor, uint8_t * data, int data_size)
+{
+  const char *frame_type_name =
+      frameTypeName (es_extractor_video_codec (esextractor));
+  INFO ("Got a %s frame of size %d", frame_type_name, data_size);
+  printBufferHex (data, data_size);
+}
+
+int
+parseFile (const char *fileName, ESExtractorPacketAlignment alignment)
+{
+  ESExtractorResult res;
+  ESPacket *pkt;
+  ESExtractor *esextractor = es_extractor_new (fileName, alignment);
+
+  if (!esextractor) {
+    ERR ("Unable to discover a compatible stream. Exit");
+    return -1;
+  }
+
+  while ((res =
+          es_extractor_read_frame (esextractor,
+              &pkt)) < ES_EXTRACTOR_RESULT_EOS) {
+    dumpFrame (esextractor, pkt->data, pkt->data_size);
+    es_extractor_clear_packet (pkt);
+  }
+  es_extractor_clear_packet (pkt);
+  INFO ("Got %d frame(s)", es_extractor_frame_count (esextractor));
+  es_extractor_teardown (esextractor);
+
+  return 0;
 }
 
 int
 main (int argc, char *argv[])
 {
-  ESExtractorResult res;
-  ESExtractor *esextractor;
-  ESPacket *pkt;
+  int res = 0;
   const char *fileName;
   std::ofstream myfile;
 
@@ -55,27 +78,9 @@ main (int argc, char *argv[])
   }
 
   fileName = argv[1];
-  if (argc > 2) {
-    myfile.open (argv[2], std::ofstream::binary);
-  }
 
-  esextractor = es_extractor_new (fileName);
-  if (!esextractor) {
-    ERR ("Unable to discover a compatible stream. Exit");
-    return -1;
-  }
+  res = parseFile (fileName, ES_EXTRACTOR_PACKET_ALIGNMENT_NAL);
+  res = parseFile (fileName, ES_EXTRACTOR_PACKET_ALIGNMENT_AU);
 
-  while ((res = es_extractor_read_frame (esextractor, &pkt)) < ES_EXTRACTOR_RESULT_EOS) {
-    dumpFrame(esextractor, pkt->data, pkt->data_size);
-    if (argc > 2) {
-      myfile.write ((const char *) pkt->data, pkt->data_size);
-    }
-    es_extractor_clear_packet (pkt);
-  }
-  es_extractor_clear_packet (pkt);
-  INFO ("Got %d frame(s)", es_extractor_frame_count (esextractor));
-  es_extractor_teardown (esextractor);
-  if (argc > 2)
-    myfile.close ();
-  return 0;
+  return res;
 }
