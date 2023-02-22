@@ -20,6 +20,14 @@
 
 const int NAL_UNIT_TYPE_MASK = 0x1F;
 
+const
+std::vector < unsigned char >
+h264_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x09, 0xF0 };
+
+const
+std::vector < unsigned char >
+h265_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x46, 0x01, 0x10 };
+
 ESENalu::ESENalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
 : m_buffer (buffer),
 m_naluCodec (codec)
@@ -40,6 +48,9 @@ ESEH264Nalu::parseNalu ()
   switch (m_naluType) {
     case ESE_H264_NAL_AUD:
       m_naluCategory = ESE_NALU_CATEGORY_AUD;
+      break;
+    case ESE_H264_NAL_SEI:
+      m_naluCategory = ESE_NALU_CATEGORY_DATA;
       break;
     case ESE_H264_NAL_SPS:
     case ESE_H264_NAL_PPS:
@@ -106,24 +117,51 @@ ESEH265Nalu::parseNalu ()
   }
 }
 
-bool
-ese_is_aud_nalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
+static ESENalu *
+getNalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
 {
-  bool res = false;
   ESENalu *nalu;
-
   if (!buffer.size ())
-    return false;
-
+    return nullptr;
   if (codec == ESE_NALU_CODEC_H264) {
     nalu = new ESEH264Nalu (buffer);
   } else {
     nalu = new ESEH265Nalu (buffer);
   }
+  return nalu;
+}
 
-  res = (nalu->naluCategory () == ESE_NALU_CATEGORY_AUD);
+ESENaluCategory
+ese_nalu_get_category (std::vector < unsigned char >buffer, ESENaluCodec codec)
+{
+  ESENaluCategory cat = ESE_NALU_CATEGORY_UNKNOWN;
+  ESENalu *nalu = getNalu (buffer, codec);
+  if (nalu) {
+    cat = nalu->naluCategory ();
+    delete nalu;
+  }
+  return cat;
+}
 
-  delete nalu;
+bool
+ese_is_aud_nalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
+{
+  ESENaluCategory cat = ese_nalu_get_category (buffer, codec);
+  return cat == ESE_NALU_CATEGORY_AUD;
+}
 
-  return res;
+bool
+ese_is_new_frame (std::vector < unsigned char >buffer, ESENaluCodec codec)
+{
+  ESENaluCategory cat = ese_nalu_get_category (buffer, codec);
+  return (cat >= ESE_NALU_CATEGORY_SLICE);
+}
+
+const std::vector < unsigned char >&
+ese_aud_nalu (ESENaluCodec codec)
+{
+  if (codec == ESE_NALU_CODEC_H264)
+    return h264_aud_nalu;
+  else // H265
+    return h265_aud_nalu;
 }

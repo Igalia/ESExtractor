@@ -72,14 +72,17 @@ ESExtractor::~ESExtractor ()
 }
 
 void
-ESExtractor::reset ()
+ESExtractor::reset (bool full)
 {
   m_filePosition = 0;
-  m_fileSize = 0;
+
   m_bufferPosition = 0;
   m_frameStartPos = 0;
-  m_mpeg_detected = false;
-  m_codec = ES_EXTRACTOR_VIDEO_CODEC_UNKNOWN;
+  if (full) {
+    m_fileSize = 0;
+    m_mpeg_detected = false;
+    m_codec = ES_EXTRACTOR_VIDEO_CODEC_UNKNOWN;
+  }
   m_frameState = ES_EXTRACTOR_NAL_STATE_NONE;
   m_nalCount = 0;
   m_frameCount = 0;
@@ -105,7 +108,8 @@ ESExtractor::readFile (int32_t data_size, int32_t pos, bool append)
     m_fileSize = m_file.tellg ();
 
   DBG ("Read %d at pos %d append %d", data_size, pos, append);
-  m_file.seekg (pos, std::ios::beg);
+  m_file.clear ();
+  m_file.seekg (pos, m_file.beg);
   std::vector < unsigned char >buffer;
   buffer.resize (data_size);
   m_file.read ((char *) buffer.data (), data_size);
@@ -326,38 +330,30 @@ ESExtractor::readStream ()
   return ES_EXTRACTOR_RESULT_NO_PACKET;
 }
 
-void
-ESExtractor::setCurrentFrame ()
-{
-  if (m_nextFrame.size ()) {
-    m_frameCount++;
-  }
-  m_currentFrame = m_nextFrame;
-}
-
 ESExtractorResult
 ESExtractor::processToNextFrame ()
 {
   ESExtractorResult res;
   if (m_alignment == ES_EXTRACTOR_PACKET_ALIGNMENT_NAL) {
     res = readStream ();
+    m_currentFrame = m_nextFrame;
+    m_frameCount ++;
   } else {
-    if (!m_nextAUD.size ()) {
-      res = readStream ();
-      m_nextAUD = m_nextFrame;
-    }
-    std::vector < unsigned char >fullFrame = m_nextAUD;
-    if (!ese_is_aud_nalu (fullFrame, (ESENaluCodec) m_codec))
-      return res;
+    m_currentFrame = {};
     while ((res = readStream ()) <= ES_EXTRACTOR_RESULT_EOS) {
-      if (res == ES_EXTRACTOR_RESULT_EOS
-          || ese_is_aud_nalu (m_nextFrame, (ESENaluCodec) m_codec)) {
-        m_nextAUD = m_nextFrame;
-        m_nextFrame = fullFrame;
-        break;
-      } else
-        fullFrame.insert (fullFrame.end (), m_nextFrame.begin (),
+      if (!ese_is_aud_nalu (m_nextFrame, (ESENaluCodec) m_codec)) {
+        m_currentFrame.insert (m_currentFrame.end (), m_nextFrame.begin (),
             m_nextFrame.end ());
+      }
+      if (res == ES_EXTRACTOR_RESULT_EOS
+          || ese_is_new_frame (m_nextFrame, (ESENaluCodec) m_codec)) {
+        if (m_currentFrame.size() > 0) {
+          const std::vector < unsigned char >& audNalu = ese_aud_nalu ((ESENaluCodec) m_codec);
+          m_currentFrame.insert (m_currentFrame.begin (), audNalu.begin (), audNalu.end ());
+          m_frameCount ++;
+        }
+        break;
+      }
     }
   }
   return res;
@@ -371,6 +367,7 @@ es_extractor_new (const char *uri, ESExtractorPacketAlignment alignment)
     extractor->setAlignment (alignment);
     extractor->processToNextFrame ();
     if (extractor->getCodec () > ES_EXTRACTOR_VIDEO_CODEC_UNKNOWN) {
+      extractor->reset (false);
       return extractor;
     }
   }
@@ -384,7 +381,7 @@ es_extractor_read_frame (ESExtractor * extractor, ESPacket ** packet)
 {
   ESExtractorResult res = ES_EXTRACTOR_RESULT_NEW_PACKET;
   std::vector < unsigned char >*currentFrame;
-  extractor->setCurrentFrame ();
+  res = extractor->processToNextFrame ();
   currentFrame = extractor->getCurrentFrame ();
 
   *packet = new ESPacket ();
@@ -396,12 +393,6 @@ es_extractor_read_frame (ESExtractor * extractor, ESPacket ** packet)
   (*packet)->data = currentFrame->data ();
   (*packet)->data_size = currentFrame->size ();
 
-  res = extractor->processToNextFrame ();
-
-  if (res == ES_EXTRACTOR_RESULT_LAST_PACKET)
-    res = ES_EXTRACTOR_RESULT_NEW_PACKET;
-  else if (res == ES_EXTRACTOR_RESULT_EOS)
-    res = ES_EXTRACTOR_RESULT_LAST_PACKET;
   return res;
 }
 
@@ -416,7 +407,6 @@ es_extractor_frame_count (ESExtractor * extractor)
 {
   return extractor->frameCount ();
 }
-
 
 void
 es_extractor_clear_packet (ESPacket * pkt)

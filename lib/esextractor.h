@@ -25,11 +25,10 @@
 //#define _DEBUG
 #ifdef _DEBUG
 #   define DBG(FMT, ...) printf(FMT "\n", ##__VA_ARGS__)
-#   define DUMP(FMT, ...) printf(FMT, ##__VA_ARGS__)
 #else
 #   define DBG(FMT, ...)
-#   define DUMP(FMT, ...)
 #endif
+#define DUMP(FMT, ...) printf(FMT, ##__VA_ARGS__)
 #define INFO(FMT, ...) printf(FMT "\n", ##__VA_ARGS__)
 #define ERR(FMT, ...) printf("ERROR: " FMT "\n", ##__VA_ARGS__)
 
@@ -104,10 +103,8 @@ public:
   ESExtractorVideoCodec getCodec() { return m_codec;};
   bool openFile(const char* fileName);
   /// @brief Reset the extractor state
-  void reset ();
+  void reset (bool full = true);
   std::vector<unsigned char>* getCurrentFrame() { return &m_currentFrame;}
-  /// @brief Set next frame to be the current frame allowing to change the next frame.
-  void setCurrentFrame();
   /// @brief Returns the NAL count.
   /// @return
   int nalCount() { return m_nalCount;}
@@ -146,7 +143,8 @@ private:
   int32_t m_readSize;
   bool m_eos;
   std::vector<unsigned char> m_buffer;
-  std::vector<unsigned char> m_nextAUD;
+  std::vector<unsigned char> m_nextNAL;
+  bool                       m_audNalDetected;
   std::vector<unsigned char> m_nextFrame;
   std::vector<unsigned char> m_currentFrame;
   uint32_t m_frameCount;

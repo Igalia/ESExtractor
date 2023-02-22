@@ -24,6 +24,7 @@ typedef enum ESENaluCategory {
   ESE_NALU_CATEGORY_AUD,
   ESE_NALU_CATEGORY_PARAMETER_SET,
   ESE_NALU_CATEGORY_SLICE,
+  ESE_NALU_CATEGORY_DATA,
 } ESENaluCategory;
 
 typedef enum ESENaluCodec {
@@ -131,7 +132,9 @@ extern "C" {
 #endif
 
 bool ese_is_aud_nalu (std::vector<unsigned char> buffer, ESENaluCodec codec);
-
+bool ese_is_new_frame (std::vector<unsigned char> buffer, ESENaluCodec codec);
+ESENaluCategory ese_nalu_get_category (std::vector < unsigned char >buffer, ESENaluCodec codec);
+const std::vector<unsigned char>& ese_aud_nalu (ESENaluCodec codec);
 #ifdef __cplusplus
 }
 #endif
