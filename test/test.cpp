@@ -17,6 +17,31 @@
 
 #include "esextractor.h"
 #include <fstream>
+#include <algorithm>
+
+class CmdLineParser{
+    public:
+        CmdLineParser (int &argc, char **argv){
+            for (int i=1; i < argc; ++i)
+                this->tokens.push_back(std::string(argv[i]));
+        }
+
+        const std::string& getOption(const std::string &option) const{
+            std::vector<std::string>::const_iterator itr;
+            itr =  std::find(this->tokens.begin(), this->tokens.end(), option);
+            if (itr != this->tokens.end() && ++itr != this->tokens.end()){
+                return *itr;
+            }
+            static const std::string empty_string("");
+            return empty_string;
+        }
+        bool optionExists(const std::string &option) const{
+            return std::find(this->tokens.begin(), this->tokens.end(), option)
+                   != this->tokens.end();
+        }
+    private:
+        std::vector <std::string> tokens;
+};
 
 const char *
 frameTypeName (ESExtractorVideoCodec codec_id)
@@ -41,7 +66,7 @@ dumpFrame (ESExtractor * esextractor, uint8_t * data, int data_size)
 }
 
 int
-parseFile (const char *fileName, ESExtractorPacketAlignment alignment)
+parseFile (const char *fileName, ESExtractorPacketAlignment alignment, bool debug)
 {
   ESExtractorResult res;
   ESPacket *pkt;
@@ -51,11 +76,12 @@ parseFile (const char *fileName, ESExtractorPacketAlignment alignment)
     ERR ("Unable to discover a compatible stream. Exit");
     return -1;
   }
-
+  INFO ("Extracting frames from %s with alignment %s", fileName, alignment == ES_EXTRACTOR_PACKET_ALIGNMENT_NAL ? "NAL":"AU");
   while ((res =
           es_extractor_read_frame (esextractor,
               &pkt)) < ES_EXTRACTOR_RESULT_EOS) {
-    dumpFrame (esextractor, pkt->data, pkt->data_size);
+    if (debug)
+      dumpFrame (esextractor, pkt->data, pkt->data_size);
     es_extractor_clear_packet (pkt);
   }
   es_extractor_clear_packet (pkt);
@@ -69,18 +95,23 @@ int
 main (int argc, char *argv[])
 {
   int res = 0;
-  const char *fileName;
+  bool debug = false;
+
   std::ofstream myfile;
 
-  if (argc < 2) {
-    std::cerr << "Error: No input file specified" << std::endl;
+  CmdLineParser cmdLine(argc, argv);
+  if(cmdLine.optionExists("-d")){
+    debug = true;
+  }
+
+  const std::string &fileName = cmdLine.getOption("-f");
+  if (fileName.empty()){
+    std::cerr << "Error: No input file specified. Usage: " << std::endl;
     return -1;
   }
 
-  fileName = argv[1];
-
-  res = parseFile (fileName, ES_EXTRACTOR_PACKET_ALIGNMENT_NAL);
-  res = parseFile (fileName, ES_EXTRACTOR_PACKET_ALIGNMENT_AU);
+  res = parseFile (fileName.c_str(), ES_EXTRACTOR_PACKET_ALIGNMENT_NAL, debug);
+  res = parseFile (fileName.c_str(), ES_EXTRACTOR_PACKET_ALIGNMENT_AU, debug);
 
   return res;
 }

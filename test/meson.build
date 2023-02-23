@@ -10,5 +10,5 @@ esextractortest = executable(
 h264sample = files(join_paths(source_root, 'samples', 'Sample_10.avc'))
 h265sample = files(join_paths(source_root, 'samples', 'Sample_10.hevc'))
 
-test('test', esextractortest, args: [ h264sample], suite: ['h264', 'esextractor'])
-test('test', esextractortest, args: [ h265sample], suite: ['h265', 'esextractor'])
+test('test', esextractortest, args: ['-f', h264sample], suite: ['h264', 'esextractor'])
+test('test', esextractortest, args: ['-f', h265sample], suite: ['h265', 'esextractor'])
