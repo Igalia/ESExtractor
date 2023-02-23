@@ -98,6 +98,7 @@ ESExtractor::openFile (const char *fileName)
   if (m_file.is_open ())
     return true;
   m_file = std::ifstream (fileName, std::ios::binary | std::ios::ate);
+  DBG ("The file %s is now %s", fileName, m_file.is_open () ? "open": "closed");
   return m_file.is_open ();
 }
 
