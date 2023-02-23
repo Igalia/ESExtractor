@@ -377,14 +377,14 @@ es_extractor_new (const char *uri, ESExtractorPacketAlignment alignment)
 }
 
 ESExtractorResult
-es_extractor_read_frame (ESExtractor * extractor, ESPacket ** packet)
+es_extractor_read_frame (ESExtractor * extractor, ESEPacket ** packet)
 {
   ESExtractorResult res = ES_EXTRACTOR_RESULT_NEW_PACKET;
   std::vector < unsigned char >*currentFrame;
   res = extractor->processToNextFrame ();
   currentFrame = extractor->getCurrentFrame ();
 
-  *packet = new ESPacket ();
+  *packet = new ESEPacket ();
   if (currentFrame->size () == 0) {
     res = ES_EXTRACTOR_RESULT_EOS;
     return res;
@@ -409,7 +409,7 @@ es_extractor_frame_count (ESExtractor * extractor)
 }
 
 void
-es_extractor_clear_packet (ESPacket * pkt)
+es_extractor_clear_packet (ESEPacket * pkt)
 {
   delete pkt;
 }

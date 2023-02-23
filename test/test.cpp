@@ -69,7 +69,7 @@ int
 parseFile (const char *fileName, ESExtractorPacketAlignment alignment, bool debug)
 {
   ESExtractorResult res;
-  ESPacket *pkt;
+  ESEPacket *pkt;
   ESExtractor *esextractor = es_extractor_new (fileName, alignment);
 
   if (!esextractor) {

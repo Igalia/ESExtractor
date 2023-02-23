@@ -84,14 +84,14 @@ typedef enum _ESExtractorFrameState {
   ES_EXTRACTOR_NAL_STATE_END,
 } ESExtractorFrameState;
 
-typedef struct _ESPacket {
+typedef struct _ESEPacket {
     uint8_t * data;
     int32_t data_size;
     int32_t packet_number;
     int64_t pts;
     int64_t dts;
     int64_t duration;
-} ESPacket;
+} ESEPacket;
 
 class ESExtractor {
 public:
@@ -159,10 +159,10 @@ ES_EXTRACTOR_API
 ESExtractor * es_extractor_new (const char * uri, ESExtractorPacketAlignment alignment);
 
 ES_EXTRACTOR_API
-ESExtractorResult es_extractor_read_frame (ESExtractor * demuxer, ESPacket ** pkt);
+ESExtractorResult es_extractor_read_frame (ESExtractor * demuxer, ESEPacket ** pkt);
 
 ES_EXTRACTOR_API
-void es_extractor_clear_packet (ESPacket * pkt);
+void es_extractor_clear_packet (ESEPacket * pkt);
 
 ES_EXTRACTOR_API
 ESExtractorVideoCodec es_extractor_video_codec(ESExtractor * demuxer);
