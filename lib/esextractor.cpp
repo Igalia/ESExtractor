@@ -23,9 +23,7 @@
 #define MPEG_HEADER_SIZE 3
 #define MAX_SEARCH_SIZE 5
 
-template < typename T > static
-    std::vector <
-    T >
+template < typename T > static std::vector <T>
 subVector (std::vector < T > const &v, int pos, int size)
 {
   auto first = v.cbegin () + pos;
@@ -50,10 +48,8 @@ isMPEGHeader (std::vector < unsigned char >buffer)
 int32_t
 scanMPEGHeader (std::vector < unsigned char >buffer, int32_t pos)
 {
-
   for (uint32_t i = pos; i < buffer.size (); i++) {
-    bool
-        found = (buffer[i] == 0x00 && buffer[i + 1] == 0x00
+    bool found = (buffer[i] == 0x00 && buffer[i + 1] == 0x00
         && buffer[i + 2] == 0x01);
     if (found)
       return i;
@@ -107,8 +103,12 @@ ESExtractor::readFile (int32_t data_size, int32_t pos, bool append)
 {
   if (!m_fileSize)
     m_fileSize = m_file.tellg ();
+  if (!m_fileSize) {
+    ERR("The file is empty. Exit.");
+    return m_buffer;
+  }
 
-  DBG ("Read %d at pos %d append %d", data_size, pos, append);
+  DBG ("Read %d at pos %d append %d from file size %d", data_size, pos, append, m_fileSize);
   m_file.clear ();
   m_file.seekg (pos, m_file.beg);
   std::vector < unsigned char >buffer;
@@ -224,15 +224,13 @@ ESExtractor::isH264 (std::vector < unsigned char >buffer)
   return found;
 }
 
-int32_t ESExtractor::parseStream (int32_t start_position)
+int32_t
+ESExtractor::parseStream (int32_t start_position)
 {
 
-  int32_t
-      pos = start_position;
-  int32_t
-      buffer_size = m_buffer.size ();
-  int32_t
-      offset = 0;
+  int32_t pos = start_position;
+  int32_t buffer_size = m_buffer.size ();
+  int32_t offset = 0;
 
   while (pos < buffer_size) {
     if (!m_mpeg_detected) {
@@ -251,6 +249,9 @@ int32_t ESExtractor::parseStream (int32_t start_position)
           return -1;
           m_frameStartPos = pos;
         }
+      } else {
+        ERR("Unable to find any start code in buffer size %d. Exit.", buffer_size);
+        return -1;
       }
     } else if (m_mpeg_detected && m_codec != ES_EXTRACTOR_VIDEO_CODEC_UNKNOWN) {
       pos = scanMPEGHeader (m_buffer, pos);
