@@ -32,8 +32,7 @@
 #define INFO(FMT, ...) printf(FMT "\n", ##__VA_ARGS__)
 #define ERR(FMT, ...) printf("ERROR: " FMT "\n", ##__VA_ARGS__)
 
-
-#if defined _WIN32 || defined __CYGWIN__
+#if (defined _WIN32 || defined __CYGWIN__) && !defined(ES_STATIC_COMPILATION)
   #ifdef BUILDING_ES_EXTRACTOR
     #define ES_EXTRACTOR_API __declspec(dllexport)
   #else
