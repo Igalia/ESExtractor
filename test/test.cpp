@@ -35,9 +35,8 @@ class CmdLineParser{
             static const std::string empty_string("");
             return empty_string;
         }
-        bool optionExists(const std::string &option) const{
-            return std::find(this->tokens.begin(), this->tokens.end(), option)
-                   != this->tokens.end();
+        int optionExists(const std::string &option) const{
+            return std::count(this->tokens.begin(), this->tokens.end(), option);
         }
     private:
         std::vector <std::string> tokens;
@@ -62,15 +61,16 @@ dumpFrame (ESExtractor * esextractor, uint8_t * data, int data_size)
   const char *frame_type_name =
       frameTypeName (es_extractor_video_codec (esextractor));
   INFO ("Got a %s frame of size %d", frame_type_name, data_size);
-  printBufferHex (data, data_size);
+  MEM_DUMP (data, data_size, "Buffer=");
 }
 
 int
-parseFile (const char *fileName, ESExtractorPacketAlignment alignment, bool debug)
+parseFile (const char *fileName, ESExtractorPacketAlignment alignment, uint8_t debug_level)
 {
   ESExtractorResult res;
   ESEPacket *pkt;
   ESExtractor *esextractor = es_extractor_new (fileName, alignment);
+  es_extractor_set_log_level (debug_level);
 
   if (!esextractor) {
     ERR ("Unable to discover a compatible stream. Exit");
@@ -80,8 +80,8 @@ parseFile (const char *fileName, ESExtractorPacketAlignment alignment, bool debu
   while ((res =
           es_extractor_read_frame (esextractor,
               &pkt)) < ES_EXTRACTOR_RESULT_EOS) {
-    if (debug)
-      dumpFrame (esextractor, pkt->data, pkt->data_size);
+
+    dumpFrame (esextractor, pkt->data, pkt->data_size);
     es_extractor_clear_packet (pkt);
   }
   es_extractor_clear_packet (pkt);
@@ -91,22 +91,36 @@ parseFile (const char *fileName, ESExtractorPacketAlignment alignment, bool debu
   return 0;
 }
 
+void usage(int argc, char *argv[]) {
+  std::cout << "Usage: " << argv[0] << " -f input_file" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Options: "<< std::endl;
+  std::cout << "-h:\t show this help message and exit"<< std::endl;
+  std::cout << "-d:\t increment the debug level which each occurences (ie -d -d = level info(2))"<< std::endl;
+}
+
 int
 main (int argc, char *argv[])
 {
   int res = 0;
-  bool debug = false;
+  uint8_t debug = ES_LOG_LEVEL_ERROR;
 
   std::ofstream myfile;
 
   CmdLineParser cmdLine(argc, argv);
-  if(cmdLine.optionExists("-d")){
-    debug = true;
+  if(cmdLine.optionExists("-h")) {
+    usage(argc, argv);
+    return 0;
+  }
+
+  for (int i = 0; i < cmdLine.optionExists("-d"); i++){
+    debug ++;
   }
 
   const std::string &fileName = cmdLine.getOption("-f");
   if (fileName.empty()){
-    std::cerr << "Error: No input file specified. Usage: " << std::endl;
+    std::cerr << "Error: No input file specified." << std::endl;
+    usage(argc, argv);
     return -1;
   }
 
