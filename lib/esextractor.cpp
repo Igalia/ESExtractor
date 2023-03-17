@@ -421,3 +421,9 @@ es_extractor_teardown (ESExtractor * extractor)
 {
   delete (extractor);
 }
+
+void
+es_extractor_set_log_level (uint8_t level)
+{
+  Logger::instance().setLogLevel(level);
+}
