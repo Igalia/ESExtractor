@@ -16,8 +16,10 @@
  */
 
 \
+#include "esereader.h"
 
-#include <vector>
+
+
 
 typedef enum ESENaluCategory {
   ESE_NALU_CATEGORY_UNKNOWN,
@@ -88,7 +90,7 @@ typedef enum
 
 class ESENalu{
 public:
-  ESENalu(std::vector<unsigned char> buffer, ESENaluCodec codec);
+  ESENalu(ESEBuffer  buffer, ESENaluCodec codec);
   virtual ~ESENalu() {}
 
   int naluType() {return m_naluType;};
@@ -98,7 +100,7 @@ public:
 protected:
   virtual void parseNalu() = 0;
   int                         m_naluType;
-  std::vector<unsigned char>  m_buffer;
+  ESEBuffer   m_buffer;
   ESENaluCodec               m_naluCodec;
   ESENaluCategory            m_naluCategory;
 
@@ -106,7 +108,7 @@ protected:
 
 class ESEH264Nalu : public ESENalu{
 public:
-  ESEH264Nalu(std::vector<unsigned char> buffer);
+  ESEH264Nalu(ESEBuffer  buffer);
   virtual ~ESEH264Nalu(){}
 
 protected:
@@ -117,7 +119,7 @@ protected:
 
 class ESEH265Nalu : public ESENalu {
 public:
-  ESEH265Nalu(std::vector<unsigned char> buffer);
+  ESEH265Nalu(ESEBuffer  buffer);
   virtual ~ESEH265Nalu(){}
 
 
@@ -131,10 +133,10 @@ protected:
 extern "C" {
 #endif
 
-bool ese_is_aud_nalu (std::vector<unsigned char> buffer, ESENaluCodec codec);
-bool ese_is_new_frame (std::vector<unsigned char> buffer, ESENaluCodec codec);
-ESENaluCategory ese_nalu_get_category (std::vector < unsigned char >buffer, ESENaluCodec codec);
-const std::vector<unsigned char>& ese_aud_nalu (ESENaluCodec codec);
+bool ese_is_aud_nalu (ESEBuffer  buffer, ESENaluCodec codec);
+bool ese_is_new_frame (ESEBuffer  buffer, ESENaluCodec codec);
+ESENaluCategory ese_nalu_get_category (ESEBuffer buffer, ESENaluCodec codec);
+const ESEBuffer & ese_aud_nalu (ESENaluCodec codec);
 #ifdef __cplusplus
 }
 #endif

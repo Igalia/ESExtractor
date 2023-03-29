@@ -15,26 +15,22 @@
  * permissions and limitations under the License.
  */
 
-
 #include "esenalu.h"
+#include "esestream.h"
 
 const int NAL_UNIT_TYPE_MASK = 0x1F;
 
-const
-std::vector < unsigned char >
-h264_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x09, 0xF0 };
+const ESEBuffer h264_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x09, 0xF0 };
 
-const
-std::vector < unsigned char >
-h265_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x46, 0x01, 0x10 };
+const ESEBuffer h265_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x46, 0x01, 0x10 };
 
-ESENalu::ESENalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
+ESENalu::ESENalu (ESEBuffer buffer, ESENaluCodec codec)
 : m_buffer (buffer),
 m_naluCodec (codec)
 {
 }
 
-ESEH264Nalu::ESEH264Nalu (std::vector < unsigned char >buffer)
+ESEH264Nalu::ESEH264Nalu (ESEBuffer buffer)
 : ESENalu (buffer, ESE_NALU_CODEC_H264)
 {
   parseNalu ();
@@ -72,7 +68,7 @@ ESEH264Nalu::parseNalu ()
   }
 }
 
-ESEH265Nalu::ESEH265Nalu (std::vector < unsigned char >buffer)
+ESEH265Nalu::ESEH265Nalu (ESEBuffer buffer)
 : ESENalu (buffer, ESE_NALU_CODEC_H265)
 {
   parseNalu ();
@@ -118,7 +114,7 @@ ESEH265Nalu::parseNalu ()
 }
 
 static ESENalu *
-getNalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
+getNalu (ESEBuffer buffer, ESENaluCodec codec)
 {
   ESENalu *nalu;
   if (!buffer.size ())
@@ -132,7 +128,7 @@ getNalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
 }
 
 ESENaluCategory
-ese_nalu_get_category (std::vector < unsigned char >buffer, ESENaluCodec codec)
+ese_nalu_get_category (ESEBuffer buffer, ESENaluCodec codec)
 {
   ESENaluCategory cat = ESE_NALU_CATEGORY_UNKNOWN;
   ESENalu *nalu = getNalu (buffer, codec);
@@ -144,20 +140,20 @@ ese_nalu_get_category (std::vector < unsigned char >buffer, ESENaluCodec codec)
 }
 
 bool
-ese_is_aud_nalu (std::vector < unsigned char >buffer, ESENaluCodec codec)
+ese_is_aud_nalu (ESEBuffer buffer, ESENaluCodec codec)
 {
   ESENaluCategory cat = ese_nalu_get_category (buffer, codec);
   return cat == ESE_NALU_CATEGORY_AUD;
 }
 
 bool
-ese_is_new_frame (std::vector < unsigned char >buffer, ESENaluCodec codec)
+ese_is_new_frame (ESEBuffer buffer, ESENaluCodec codec)
 {
   ESENaluCategory cat = ese_nalu_get_category (buffer, codec);
   return (cat >= ESE_NALU_CATEGORY_SLICE);
 }
 
-const std::vector < unsigned char >&
+const ESEBuffer &
 ese_aud_nalu (ESENaluCodec codec)
 {
   if (codec == ESE_NALU_CODEC_H264)

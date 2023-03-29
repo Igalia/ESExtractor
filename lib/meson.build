@@ -1,10 +1,15 @@
 esextractor_sources = files(
   'esextractor.cpp',
+  'esereader.cpp',
+  'esestream.cpp',
+  'eseivfstream.cpp',
+  'esenalstream.cpp',
   'esenalu.cpp',
 )
 
 esextractor_headers = files(
   'esextractor.h',
+  'esestream.h'
 )
 
 install_headers(esextractor_headers)

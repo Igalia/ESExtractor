@@ -15,9 +15,12 @@
  * permissions and limitations under the License.
  */
 
-#include "esextractor.h"
-#include <fstream>
+
+#include "testese.h"
 #include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 class CmdLineParser{
     public:
@@ -42,67 +45,18 @@ class CmdLineParser{
         std::vector <std::string> tokens;
 };
 
-const char *
-frameTypeName (ESExtractorVideoCodec codec_id)
-{
-  switch (codec_id) {
-    case ES_EXTRACTOR_VIDEO_CODEC_H264:
-      return "h264";
-    case ES_EXTRACTOR_VIDEO_CODEC_H265:
-      return "h265";
-    default:
-      return "unknown";
-  };
-}
-
-void
-dumpFrame (ESExtractor * esextractor, uint8_t * data, int data_size)
-{
-  const char *frame_type_name =
-      frameTypeName (es_extractor_video_codec (esextractor));
-  INFO ("Got a %s frame of size %d", frame_type_name, data_size);
-  MEM_DUMP (data, data_size, "Buffer=");
-}
-
-int
-parseFile (const char *fileName, ESExtractorPacketAlignment alignment, uint8_t debug_level)
-{
-  ESExtractorResult res;
-  ESEPacket *pkt;
-  ESExtractor *esextractor = es_extractor_new (fileName, alignment);
-  es_extractor_set_log_level (debug_level);
-
-  if (!esextractor) {
-    ERR ("Unable to discover a compatible stream. Exit");
-    return -1;
-  }
-  INFO ("Extracting frames from %s with alignment %s", fileName, alignment == ES_EXTRACTOR_PACKET_ALIGNMENT_NAL ? "NAL":"AU");
-  while ((res =
-          es_extractor_read_frame (esextractor,
-              &pkt)) < ES_EXTRACTOR_RESULT_EOS) {
-
-    dumpFrame (esextractor, pkt->data, pkt->data_size);
-    es_extractor_clear_packet (pkt);
-  }
-  es_extractor_clear_packet (pkt);
-  INFO ("Got %d frame(s)", es_extractor_frame_count (esextractor));
-  es_extractor_teardown (esextractor);
-
-  return 0;
-}
-
 void usage(int argc, char *argv[]) {
   std::cout << "Usage: " << argv[0] << " -f input_file" << std::endl;
   std::cout << std::endl;
   std::cout << "Options: "<< std::endl;
   std::cout << "-h:\t show this help message and exit"<< std::endl;
+  std::cout << "-o:\t add option to the parser cmd line"<< std::endl;
   std::cout << "-d:\t increment the debug level which each occurences (ie -d -d = level info(2))"<< std::endl;
 }
 
 int
 main (int argc, char *argv[])
 {
-  int res = 0;
   uint8_t debug = ES_LOG_LEVEL_ERROR;
 
   std::ofstream myfile;
@@ -117,15 +71,14 @@ main (int argc, char *argv[])
     debug ++;
   }
 
+  const std::string &option = cmdLine.getOption("-o");
+
   const std::string &fileName = cmdLine.getOption("-f");
   if (fileName.empty()){
     std::cerr << "Error: No input file specified." << std::endl;
     usage(argc, argv);
-    return -1;
+    return 1;
   }
 
-  res = parseFile (fileName.c_str(), ES_EXTRACTOR_PACKET_ALIGNMENT_NAL, debug);
-  res = parseFile (fileName.c_str(), ES_EXTRACTOR_PACKET_ALIGNMENT_AU, debug);
-
-  return res;
+  return (int)(parseFile (fileName.c_str(), option.c_str(), debug) < 0);
 }
