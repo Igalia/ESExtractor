@@ -16,6 +16,9 @@
  */
 
 #include "esextractor.h"
+
+#include <cstdint>
+
 #include "esenalu.h"
 
 
