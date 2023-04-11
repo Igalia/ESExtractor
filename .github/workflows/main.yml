@@ -14,10 +14,12 @@ env:
 
 jobs:
   ci-linux-x86_64:
+    strategy:
+      matrix:
+        platform: [linux-x86_64, linux-x86]
     runs-on: ubuntu-22.04
 
     env:
-      PLATFORM: linux-x86_64
       TERM: dumb
 
     steps:
@@ -28,10 +30,27 @@ jobs:
         run: |
           echo "DESTDIR=$REPO_NAME-release" >> $GITHUB_ENV
 
+      - name: Set i386 environment variables
+        if: matrix.platform == 'linux-x86'
+        run: |
+            echo "CC=cc -m32" >> $GITHUB_ENV
+            echo "CXX=c++ -m32" >> $GITHUB_ENV
+            echo "PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig/" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install --assume-yes --no-install-recommends meson  valgrind
+          sudo apt install --assume-yes --no-install-recommends valgrind python3-pip ninja-build
+          sudo pip3 install meson==1.0.1
+
+      - name: Install i386 dependencies
+        if: matrix.platform == 'linux-x86'
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt update
+          sudo apt install gcc-multilib g++-multilib libc6-dbg:i386
+          # hack to avoid that zlib x64 gets picked up
+          sudo apt remove --assume-yes zlib1g-dev
 
       - name: Configure
         run: meson setup builddir --default-library=both
@@ -50,22 +69,27 @@ jobs:
         shell: bash
         run: |
           pushd builddir/
-          zip -r ../$REPO_NAME-release-$PLATFORM.zip $REPO_NAME-release
+          zip -r ../$REPO_NAME-release-${{ matrix.platform }}.zip $REPO_NAME-release
           popd
 
       - name: Upload linux release
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.REPO_NAME }}-release-${{ env.PLATFORM }}
-          path: ${{ env.REPO_NAME }}-release-${{ env.PLATFORM }}.zip
+          name: ${{ env.REPO_NAME }}-release-${{ matrix.platform }}
+          path: ${{ env.REPO_NAME }}-release-${{ matrix.platform }}.zip
 
   ci-win64:
+    strategy:
+      matrix:
+        platform: [windows-x64, windows-x86]
     runs-on: windows-latest
 
-    env:
-      PLATFORM: windows-x64
-
     steps:
+      - name: Set up X86 MSVC environment
+        if: matrix.platform == 'windows-x86'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: 'x86'
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -102,11 +126,11 @@ jobs:
         shell: bash
         run: |
           pushd builddir/
-          zip -r ../$REPO_NAME-release-$PLATFORM.zip $REPO_NAME-release
+          zip -r ../$REPO_NAME-release-${{ matrix.platform }}.zip $REPO_NAME-release
           popd
 
       - name: Upload windows release
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.REPO_NAME }}-release-${{ env.PLATFORM }}
-          path: ${{ env.REPO_NAME }}-release-${{ env.PLATFORM }}.zip
+          name: ${{ env.REPO_NAME }}-release-${{ matrix.platform }}
+          path: ${{ env.REPO_NAME }}-release-${{ matrix.platform }}.zip
