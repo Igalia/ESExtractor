@@ -52,8 +52,6 @@ public:
   /// @return
   int packetCount();
 
-  bool openFile (const char *uri);
-
 private:
 
   ESEStream* m_stream;
@@ -71,6 +69,9 @@ ES_EXTRACTOR_API
 ESEResult es_extractor_read_packet (ESExtractor * demuxer, ESEPacket ** pkt);
 
 ES_EXTRACTOR_API
+ESEResult es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** pkt);
+
+ES_EXTRACTOR_API
 void es_extractor_clear_packet (ESEPacket * pkt);
 
 ES_EXTRACTOR_API
@@ -83,7 +84,7 @@ ES_EXTRACTOR_API
 int es_extractor_packet_count (ESExtractor * extractor);
 
 ES_EXTRACTOR_API
-void es_extractor_teardown (ESExtractor * demuxer);
+void es_extractor_teardown (ESExtractor * extractor);
 
 ES_EXTRACTOR_API
 void es_extractor_set_log_level (uint8_t level);
