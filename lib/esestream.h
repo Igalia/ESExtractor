@@ -101,20 +101,20 @@ protected:
   ESEBuffer  prepareFrame(ESEBuffer  buffer, uint32_t start, uint32_t end);
   ESEPacket* prepareCurrentPacket (uint64_t pts = 0, uint64_t dts = 0, uint64_t duration = 0);
 
-  int32_t                     m_frameStartPos;
-  int32_t                     m_frameStartCodeLen;
-  ESEVideoCodec               m_codec;
-  ESEVideoFormat              m_format;
-  std::map<std::string, std::string> m_options;
+  int32_t                             m_frameStartPos;
+  int32_t                             m_frameStartCodeLen;
+  ESEVideoCodec                       m_codec;
+  ESEVideoFormat                      m_format;
+  std::map<std::string, std::string>  m_options;
   
-  bool                        m_eos;
-  ESEBuffer   m_buffer;
-  uint32_t                    m_bufferPosition;
+  bool                                m_eos;
+  ESEBuffer                           m_buffer;
+  uint32_t                            m_bufferPosition;
 
-  ESEBuffer   m_nextFrame;
-  ESEBuffer   m_currentFrame;
-  uint32_t                    m_frameCount;
-  ESEPacket*                  m_currentPacket;
+  ESEBuffer                           m_nextFrame;
+  ESEBuffer                           m_currentFrame;
+  uint32_t                            m_frameCount;
+  ESEPacket*                          m_currentPacket;
 };
 
 #endif //__ESE_STREAM_H__
