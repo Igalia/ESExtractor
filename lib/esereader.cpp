@@ -50,6 +50,7 @@ ESEReader::openFile (const char *fileName)
   if (m_file.is_open ()) {
     m_fileSize = m_file.tellg ();
     ret = true;
+    m_fileName = fileName;
   } else
     ERR ("Unable to open the file %s", fileName);
   return ret;
