@@ -75,6 +75,7 @@ public:
   virtual void reset();
 
   bool prepare (const char* uri, const char* options = nullptr);
+  void setOptions (const char *options);
   virtual void parseOptions(const char* options);
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
