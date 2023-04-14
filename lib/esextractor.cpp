@@ -59,7 +59,7 @@ ESExtractor::codec_name ()
 }
 
 int
-ESExtractor::frameCount ()
+ESExtractor::packetCount ()
 {
   if (m_stream)
     return m_stream->frameCount ();
@@ -76,7 +76,7 @@ ESExtractor::currentPacket ()
   return nullptr;
 }
 
-ESEResult ESExtractor::processToNextFrame ()
+ESEResult ESExtractor::processToNextPacket ()
 {
   if (m_stream)
     return m_stream->processToNextFrame ();
@@ -115,10 +115,10 @@ es_extractor_new (const char *uri, const char *options)
 }
 
 ESEResult
-es_extractor_read_frame (ESExtractor * extractor, ESEPacket ** packet)
+es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** packet)
 {
   ESEResult res = ESE_RESULT_NEW_PACKET;
-  res = extractor->processToNextFrame ();
+  res = extractor->processToNextPacket ();
   if(res <  ESE_RESULT_EOS)
     *packet = extractor->currentPacket ();
   else
@@ -140,9 +140,9 @@ es_extractor_video_codec_name (ESExtractor * extractor)
 }
 
 int
-es_extractor_frame_count (ESExtractor * extractor)
+es_extractor_packet_count (ESExtractor * extractor)
 {
-  return extractor->frameCount ();
+  return extractor->packetCount ();
 }
 
 void

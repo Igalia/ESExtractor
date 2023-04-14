@@ -42,15 +42,15 @@ public:
   bool prepare(const char *uri, const char* options);
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
-  ESEResult processToNextFrame();
+  ESEResult processToNextPacket();
   ESEVideoCodec codec();
   const char* codec_name();
 
   /// @brief Reset the extractor state
   ESEPacket* currentPacket();
-  /// @brief Returns the frame count.
+  /// @brief Returns the packet count.
   /// @return
-  int frameCount();
+  int packetCount();
 
   bool openFile (const char *uri);
 
@@ -68,7 +68,7 @@ ES_EXTRACTOR_API
 ESExtractor * es_extractor_new (const char * uri, const char* options);
 
 ES_EXTRACTOR_API
-ESEResult es_extractor_read_frame (ESExtractor * demuxer, ESEPacket ** pkt);
+ESEResult es_extractor_read_packet (ESExtractor * demuxer, ESEPacket ** pkt);
 
 ES_EXTRACTOR_API
 void es_extractor_clear_packet (ESEPacket * pkt);
@@ -80,7 +80,7 @@ ES_EXTRACTOR_API
 const char* es_extractor_video_codec_name(ESExtractor * extractor);
 
 ES_EXTRACTOR_API
-int es_extractor_frame_count (ESExtractor * extractor);
+int es_extractor_packet_count (ESExtractor * extractor);
 
 ES_EXTRACTOR_API
 void es_extractor_teardown (ESExtractor * demuxer);

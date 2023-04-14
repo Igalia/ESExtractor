@@ -25,8 +25,8 @@
 static void
 dumpPacket (ESExtractor * esextractor, ESEPacket* pkt)
 {
-  const char *frame_type_name = es_extractor_video_codec_name (esextractor);
-  DBG ("Got a %s frame of size %d pts=%lld", frame_type_name, pkt->data_size, pkt->pts);
+  const char *packet_type_name = es_extractor_video_codec_name (esextractor);
+  DBG ("Got a %s packet of size %d pts=%lld", packet_type_name, pkt->data_size, pkt->pts);
   MEM_DUMP (pkt->data, pkt->data_size, "Buffer=");
 }
 
@@ -36,7 +36,7 @@ parseFile (const char *fileName, const char* options, uint8_t debug_level)
   ESEResult res;
   ESEPacket *pkt;
   ESExtractor *esextractor;
-  int frame_count;
+  int packet_count;
 
   es_extractor_set_log_level (debug_level);
   esextractor = es_extractor_new (fileName, options);
@@ -45,20 +45,20 @@ parseFile (const char *fileName, const char* options, uint8_t debug_level)
     ERR ("Unable to discover a compatible stream. Exit");
     return -1;
   }
-  INFO ("Extracting frames from %s with options %s", fileName, options);
+  INFO ("Extracting packets from %s with options %s", fileName, options);
   while ((res =
-          es_extractor_read_frame (esextractor,
+          es_extractor_read_packet (esextractor,
               &pkt)) < ESE_RESULT_EOS) {
 
     dumpPacket (esextractor, pkt);
     es_extractor_clear_packet (pkt);
   }
 
-  frame_count = es_extractor_frame_count (esextractor);
-  INFO ("Got %d frame(s)", frame_count);
+  packet_count = es_extractor_packet_count (esextractor);
+  INFO ("Got %d packet(s)", packet_count);
   es_extractor_teardown (esextractor);
 
-  return frame_count;
+  return packet_count;
 }
 
 
