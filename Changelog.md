@@ -1,3 +1,6 @@
+v0.3.1
+ - Unify the API to use packet instead of frame keyword
+
 v0.3.0
  - Redesign the library to support multiple format
  - Detach the reader from the parser
