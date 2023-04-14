@@ -23,6 +23,7 @@
 #include <fstream>
 #include <istream>
 #include <vector>
+#include <string>
 
 #define ESEBuffer std::vector <unsigned char>
 
@@ -58,6 +59,7 @@ private:
   uint32_t readFile(int32_t data_size, int32_t pos = 0, bool append = false );
 
   std::ifstream               m_file;
+  std::string                 m_fileName;
   int32_t                     m_filePosition;
   int32_t                     m_fileSize;
 
