@@ -20,6 +20,7 @@
 #include "esenalstream.h"
 #include "eselogger.h"
 
+#include <assert.h>
 
 ESExtractor::ESExtractor ():
 m_stream (nullptr)
@@ -107,6 +108,14 @@ ESExtractor::prepare (const char *uri, const char *options)
   return false;
 }
 
+void ESExtractor::setOptions (const char *options)
+{
+    assert(m_stream);
+    m_stream->reset ();
+    m_stream->setOptions (options);
+    m_stream->processToNextFrame();
+}
+
 //C API
 
 ESExtractor *
@@ -119,6 +128,11 @@ es_extractor_new (const char *uri, const char *options)
 
   es_extractor_teardown (extractor);
   return NULL;
+}
+
+void es_extractor_set_options (ESExtractor * extractor, const char* options)
+{
+  extractor->setOptions (options);
 }
 
 ESEResult

@@ -40,6 +40,7 @@ public:
   ESExtractor();
   ~ESExtractor();
   bool prepare(const char *uri, const char* options);
+  void setOptions(const char* options);
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
   ESEResult processToNextPacket();
@@ -67,7 +68,7 @@ ES_EXTRACTOR_API
 ESExtractor * es_extractor_new (const char * uri, const char* options);
 
 ES_EXTRACTOR_API
-ESEResult es_extractor_read_packet (ESExtractor * demuxer, ESEPacket ** pkt);
+void es_extractor_set_options (ESExtractor * extractor, const char* options);
 
 ES_EXTRACTOR_API
 ESEResult es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** pkt);

@@ -80,6 +80,11 @@ ESEStream::prepare (const char *uri, const char *options)
   return (processToNextFrame() <= ESE_RESULT_ERROR);
 }
 
+void ESEStream::setOptions (const char *options)
+{
+  parseOptions (options);
+}
+
 ESEBuffer
 ESEStream::prepareFrame (ESEBuffer buffer, uint32_t start,
     uint32_t end)
