@@ -19,11 +19,9 @@
 #include "eseivfstream.h"
 #include "eselogger.h"
 
-
 #define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 #define MPEG_HEADER_SIZE 3
 #define MAX_SEARCH_SIZE 5
-
 
 ESEVideoFormat
 ese_stream_probe_video_format (const char *uri)

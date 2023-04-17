@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "esextractor.h"
 #include "esereader.h"
 
 #include <vector>
@@ -30,39 +31,11 @@
 
 #define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 
-typedef enum ESEVideoCodec {
-  ESE_VIDEO_CODEC_UNKNOWN = 0,
-  ESE_VIDEO_CODEC_H264,
-  ESE_VIDEO_CODEC_H265,
-  ESE_VIDEO_CODEC_VP8,
-  ESE_VIDEO_CODEC_VP9,
-  ESE_VIDEO_CODEC_AV1,
-} ESEVideoCodec;
-
 typedef enum ESEVideoFormat {
   ESE_VIDEO_FORMAT_UNKNOWN = 0,
   ESE_VIDEO_FORMAT_NAL,
   ESE_VIDEO_FORMAT_IVF,
 } ESEVideoFormat;
-
-typedef enum _ESEResult
-{
-  /*< public >*/
-  ESE_RESULT_NEW_PACKET = 0,
-  ESE_RESULT_LAST_PACKET,
-  ESE_RESULT_EOS,
-  ESE_RESULT_NO_PACKET ,
-  ESE_RESULT_ERROR,
-} ESEResult;
-
-typedef struct _ESEPacket {
-    uint8_t * data;
-    int32_t data_size;
-    int32_t packet_number;
-    uint64_t pts;
-    uint64_t dts;
-    uint64_t duration;
-} ESEPacket;
 
 ESEVideoFormat ese_stream_probe_video_format (const char* uri);
 

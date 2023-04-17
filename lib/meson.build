@@ -9,7 +9,6 @@ esextractor_sources = files(
 
 esextractor_headers = files(
   'esextractor.h',
-  'esestream.h'
 )
 
 install_headers(esextractor_headers)

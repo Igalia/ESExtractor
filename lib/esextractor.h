@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include "esestream.h"
+#include <cstdint>
 
 #if (defined _WIN32 || defined __CYGWIN__) && !defined(ES_STATIC_COMPILATION)
   #ifdef BUILDING_ES_EXTRACTOR
@@ -33,30 +33,34 @@
   #endif
 #endif
 
-class ESExtractor {
-public:
-  ESExtractor();
-  ~ESExtractor();
-  bool prepare(const char *uri, const char* options);
-  /// @brief This method will build the next frame (NAL or AU) available.
-  /// @return
-  ESEResult processToNextPacket();
-  ESEVideoCodec codec();
-  const char* codec_name();
+struct ESExtractor;
 
-  /// @brief Reset the extractor state
-  ESEPacket* currentPacket();
-  /// @brief Returns the packet count.
-  /// @return
-  int packetCount();
-
-  bool openFile (const char *uri);
-
-private:
-
-  ESEStream* m_stream;
+struct ESEPacket {
+  uint8_t *data;
+  int32_t data_size;
+  int32_t packet_number;
+  uint64_t pts;
+  uint64_t dts;
+  uint64_t duration;
 };
 
+typedef enum ESEResult {
+  /*< public >*/
+  ESE_RESULT_NEW_PACKET = 0,
+  ESE_RESULT_LAST_PACKET,
+  ESE_RESULT_EOS,
+  ESE_RESULT_NO_PACKET,
+  ESE_RESULT_ERROR,
+} ESEResult;
+
+typedef enum ESEVideoCodec {
+  ESE_VIDEO_CODEC_UNKNOWN = 0,
+  ESE_VIDEO_CODEC_H264,
+  ESE_VIDEO_CODEC_H265,
+  ESE_VIDEO_CODEC_VP8,
+  ESE_VIDEO_CODEC_VP9,
+  ESE_VIDEO_CODEC_AV1,
+} ESEVideoCodec;
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,10 +76,10 @@ ES_EXTRACTOR_API
 void es_extractor_clear_packet (ESEPacket * pkt);
 
 ES_EXTRACTOR_API
-ESEVideoCodec es_extractor_video_codec(ESExtractor * extractor);
+ESEVideoCodec es_extractor_video_codec (ESExtractor * extractor);
 
 ES_EXTRACTOR_API
-const char* es_extractor_video_codec_name(ESExtractor * extractor);
+const char* es_extractor_video_codec_name (ESExtractor * extractor);
 
 ES_EXTRACTOR_API
 int es_extractor_packet_count (ESExtractor * extractor);
