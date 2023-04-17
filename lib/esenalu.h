@@ -15,11 +15,9 @@
  * permissions and limitations under the License.
  */
 
-\
+#pragma once
+
 #include "esereader.h"
-
-
-
 
 typedef enum ESENaluCategory {
   ESE_NALU_CATEGORY_UNKNOWN,

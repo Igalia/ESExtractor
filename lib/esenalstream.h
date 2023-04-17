@@ -15,8 +15,7 @@
  * permissions and limitations under the License.
  */
 
-#ifndef __ESE_NALSTREAM_H__
-#define __ESE_NALSTREAM_H__
+#pragma once
 
 #include <vector>
 
@@ -65,5 +64,3 @@ private:
   ESEPacketAlignment          m_alignment;
 
 };
-
-#endif //__ESE_NALSTREAM_H__

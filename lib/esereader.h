@@ -15,8 +15,7 @@
  * permissions and limitations under the License.
  */
 
-#ifndef __ESE_READER_H__
-#define __ESE_READER_H__
+#pragma once
 
 #include <cstdint>
 #include <iostream>
@@ -66,5 +65,3 @@ private:
   int32_t                     m_readSize;
   ESEBuffer                   m_buffer;
 };
-
-#endif //__ESE_READER_H__
