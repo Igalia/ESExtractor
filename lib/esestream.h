@@ -86,7 +86,8 @@ public:
   bool isH264 (ESEBuffer buffer);
   bool isH265 (ESEBuffer buffer);
 
-  ESEVideoCodec codec() { return m_codec;};
+  ESEVideoCodec codec() { return m_codec;}
+  ESEVideoFormat format() { return m_format;}
   ESEBuffer * currentFrame() { return &m_currentFrame;}
   ESEPacket*                  currentPacket();
 

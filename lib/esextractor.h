@@ -44,6 +44,7 @@ public:
   /// @return
   ESEResult processToNextPacket();
   ESEVideoCodec codec();
+  ESEVideoFormat format();
   const char* codec_name();
 
   /// @brief Reset the extractor state
@@ -73,6 +74,9 @@ ESEResult es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** pkt);
 
 ES_EXTRACTOR_API
 void es_extractor_clear_packet (ESEPacket * pkt);
+
+ES_EXTRACTOR_API
+ESEVideoFormat es_extractor_video_format(ESExtractor * extractor);
 
 ES_EXTRACTOR_API
 ESEVideoCodec es_extractor_video_codec(ESExtractor * extractor);

@@ -32,6 +32,13 @@ ESExtractor::~ESExtractor ()
     delete m_stream;
 }
 
+ESEVideoFormat ESExtractor::format ()
+{
+  if (m_stream)
+    return m_stream->format ();
+  return ESE_VIDEO_FORMAT_UNKNOWN;
+}
+
 ESEVideoCodec ESExtractor::codec ()
 {
   if (m_stream)
@@ -131,6 +138,12 @@ ESEVideoCodec
 es_extractor_video_codec (ESExtractor * extractor)
 {
   return extractor->codec ();
+}
+
+ESEVideoFormat
+es_extractor_video_format (ESExtractor * extractor)
+{
+  return extractor->format ();
 }
 
 const char *
