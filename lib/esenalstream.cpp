@@ -28,7 +28,7 @@ ESENALStream::ESENALStream ():
 ESEStream (ESE_VIDEO_FORMAT_NAL),
 m_frameState (ESE_NAL_FRAME_STATE_NONE),
 m_nalCount (false),
-m_mpeg_detected (false),
+m_mpegDetected (false),
 m_audNalDetected (false),
 m_alignment (ESE_PACKET_ALIGNMENT_AU)
 {
@@ -68,19 +68,19 @@ ESENALStream::parseStream (int32_t start_position)
   int32_t buffer_size = m_buffer.size ();
 
   while (pos < buffer_size) {
-    if (!m_mpeg_detected) {
+    if (!m_mpegDetected) {
       pos = probeH26x ();
       if (pos > 0) {
         /* start code might have 2 or 3 0-bytes */
         m_frameStartPos = pos;
         m_frameState = ESE_NAL_FRAME_STATE_START;
-        m_mpeg_detected = true;
+        m_mpegDetected = true;
       } else {
         ERR ("Unable to find any start code in buffer size %d. Exit.",
             buffer_size);
         return -1;
       }
-    } else if (m_mpeg_detected && m_codec != ESE_VIDEO_CODEC_UNKNOWN) {
+    } else if (m_mpegDetected && m_codec != ESE_VIDEO_CODEC_UNKNOWN) {
       pos = scanMPEGHeader (m_buffer, pos);
       if (pos >= 0) {
         DBG ("Found a NAL delimiter, stop pos %d ", pos);

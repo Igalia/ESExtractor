@@ -48,8 +48,8 @@ private:
   void parseOptions(const char* options);
 
   IVFHeader m_header;
-  bool m_header_found;
-  uint64_t m_last_pts;
+  bool m_headerFound;
+  uint64_t m_lastPts;
 };
 
 #endif //__ESE_IVFSTREAM_H__

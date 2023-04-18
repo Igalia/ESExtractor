@@ -59,7 +59,7 @@ private:
 
   ESENALFrameState            m_frameState;
   uint32_t                    m_nalCount;
-  bool                        m_mpeg_detected;
+  bool                        m_mpegDetected;
   ESEBuffer                   m_nextNAL;
   bool                        m_audNalDetected;
   ESEPacketAlignment          m_alignment;

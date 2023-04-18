@@ -32,8 +32,8 @@ struct IVFFrameHeader
 
 ESEIVFStream::ESEIVFStream ():
 ESEStream (ESE_VIDEO_FORMAT_IVF),
-m_header_found (false),
-m_last_pts (false)
+m_headerFound (false),
+m_lastPts (false)
 {
 }
 
@@ -75,10 +75,10 @@ ESEIVFStream::processToNextFrame ()
   if (m_reader.isEOS ())
     return ESE_RESULT_EOS;
 
-  if (!m_header_found) {
+  if (!m_headerFound) {
     m_buffer = m_reader.getBuffer (sizeof (IVFHeader));
     std::memcpy (&m_header, m_buffer.data (), sizeof (IVFHeader));
-    m_header_found = true;
+    m_headerFound = true;
     m_codec = fourccToCodec ();
   }
   m_buffer = m_reader.getBuffer (sizeof (IVFFrameHeader));
@@ -89,9 +89,9 @@ ESEIVFStream::processToNextFrame ()
   m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
   prepareCurrentPacket (frame_header.timestamp, frame_header.timestamp,
-      m_last_pts - frame_header.timestamp);
+      m_lastPts - frame_header.timestamp);
 
-  m_last_pts = frame_header.timestamp;
+  m_lastPts = frame_header.timestamp;
 
   if (m_reader.isEOS ())
     res = ESE_RESULT_LAST_PACKET;
