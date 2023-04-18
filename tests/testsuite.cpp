@@ -15,28 +15,57 @@
  * permissions and limitations under the License.
  */
 
+#include <cassert>
+#include <string>
+
+#include "config.h"
 
 #include "testese.h"
-#include <assert.h>
-#include "config.h"
+
+void check_nal_file(const char* uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets_nal, int num_packets_au)
+{
+  ESExtractor* extractor;
+
+  extractor = create_es_extractor(uri, nullptr, log_level);
+  assert(extractor);
+  assert(es_extractor_video_format(extractor) == ESE_VIDEO_FORMAT_NAL);
+  assert(es_extractor_video_codec(extractor) == codec);
+  assert(std::string(es_extractor_video_codec_name(extractor)) == codec_name);
+  assert(parse (extractor) == num_packets_nal);
+  es_extractor_set_options (extractor, "alignment:AU");
+  assert(parse (extractor) == num_packets_au);
+  es_extractor_set_options (extractor, "alignment:NAL");
+  assert(parse (extractor) == num_packets_nal);
+  es_extractor_teardown(extractor);
+}
+
+void check_ivf_file (const char* uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets)
+{
+  ESExtractor* extractor;
+
+  extractor = create_es_extractor(uri, nullptr, log_level);
+  assert(extractor);
+  assert(es_extractor_video_format(extractor) == ESE_VIDEO_FORMAT_IVF);
+  assert(es_extractor_video_codec(extractor) == codec);
+  assert(std::string(es_extractor_video_codec_name(extractor)) == codec_name);
+  assert(parse (extractor) == num_packets);
+  es_extractor_teardown(extractor);
+}
 
 int
 main (int argc, char *argv[])
 {
-  int log_level = 0;
+  int log_level = ES_LOG_LEVEL_INFO;
 
-  // AVC tests
-  assert(parseFile (ESE_SAMPLES_FOLDER "/Sample_10.avc", nullptr, log_level) == 10);
-  assert(parseFile (ESE_SAMPLES_FOLDER "/Sample_10.avc", "alignment:AU", log_level) == 10);
-  assert(parseFile (ESE_SAMPLES_FOLDER "/Sample_10.avc", "alignment:NAL", log_level) == 22);
-
-  //HEVC tests
-  assert(parseFile (ESE_SAMPLES_FOLDER "/Sample_10.hevc", nullptr, log_level) == 10);
-  assert(parseFile (ESE_SAMPLES_FOLDER "/Sample_10.hevc", "alignment:AU", log_level) == 10);
-  assert(parseFile (ESE_SAMPLES_FOLDER "/Sample_10.hevc", "alignment:NAL", log_level) == 23);
+  check_nal_file(ESE_SAMPLES_FOLDER "/Sample_10.avc", log_level, ESE_VIDEO_CODEC_H264, "h264", 22, 10);
+  check_nal_file(ESE_SAMPLES_FOLDER "/Sample_10.hevc", log_level, ESE_VIDEO_CODEC_H265, "h265", 23, 10);
 
   // IVF tests
-  assert(parseFile (ESE_SAMPLES_FOLDER "/clip-a.ivf", nullptr, log_level) == 30);
+  check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30);
+
+  // Corner case tests
+  assert(parse_file (nullptr, nullptr, log_level) == -1);
+  assert(parse_file ("/this/path/does/not/exists", nullptr, log_level) == -1);
 
   return 0;
 }

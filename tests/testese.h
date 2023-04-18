@@ -18,5 +18,8 @@
 #pragma once
 
 #include "eselogger.h"
+#include "esextractor.h"
 
-int parseFile (const char *fileName, const char* options, uint8_t debug_level);
+ESExtractor* create_es_extractor (const char *fileName, const char* options, uint8_t debug_level);
+int parse (ESExtractor* extractor);
+int parse_file (const char *fileName, const char* options, uint8_t debug_level);

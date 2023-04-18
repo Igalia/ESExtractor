@@ -15,12 +15,12 @@
  * permissions and limitations under the License.
  */
 
-
-#include "testese.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <vector>
+
+#include "testese.h"
 
 class CmdLineParser{
     public:
@@ -80,5 +80,5 @@ main (int argc, char *argv[])
     return 1;
   }
 
-  return (int)(parseFile (fileName.c_str(), option.c_str(), debug) < 0);
+  return (int)(parse_file (fileName.c_str(), option.c_str(), debug) < 0);
 }
