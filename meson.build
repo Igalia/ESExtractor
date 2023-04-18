@@ -1,5 +1,5 @@
 project('esextractor', 'c', 'cpp',
-  default_options : [ 'buildtype=debug', 'cpp_std=c++17' ],
+  default_options : [ 'buildtype=debug', 'cpp_std=c++11' ],
   version: '0.0.1'
 )
 
