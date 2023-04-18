@@ -31,14 +31,20 @@ struct IVFFrameHeader
 #pragma pack(pop)
 
 ESEIVFStream::ESEIVFStream ():
-ESEStream (ESE_VIDEO_FORMAT_IVF),
-m_headerFound (false),
-m_lastPts (false)
+ESEStream (ESE_VIDEO_FORMAT_IVF)
 {
+  reset ();
 }
 
 ESEIVFStream::~ESEIVFStream ()
 {
+}
+
+void ESEIVFStream::reset ()
+{
+  m_headerFound = false;
+  m_lastPts = 0;
+  ESEStream::reset ();
 }
 
 void
@@ -72,6 +78,9 @@ ESEIVFStream::processToNextFrame ()
   ESEResult res = ESE_RESULT_NEW_PACKET;
   IVFFrameHeader frame_header;
 
+  if (m_nextPacket)
+    return ESE_RESULT_NEW_PACKET;
+
   if (m_reader.isEOS ())
     return ESE_RESULT_EOS;
 
@@ -88,15 +97,13 @@ ESEIVFStream::processToNextFrame ()
   m_buffer = m_reader.getBuffer (frame_header.frame_size);
   m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
-  prepareCurrentPacket (frame_header.timestamp, frame_header.timestamp,
+  prepareNextPacket (frame_header.timestamp, frame_header.timestamp,
       m_lastPts - frame_header.timestamp);
 
   m_lastPts = frame_header.timestamp;
 
   if (m_reader.isEOS ())
     res = ESE_RESULT_LAST_PACKET;
-
-  m_frameCount++;
 
   DBG ("Found a new IVF frame (%d) of size %zd", m_frameCount,
       m_currentFrame.size ());

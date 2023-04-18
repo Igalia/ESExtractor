@@ -87,7 +87,6 @@ ESEResult ESExtractor::processToNextPacket ()
 bool
 ESExtractor::prepare (const char *uri, const char *options)
 {
-  bool found = false;
   ESEVideoFormat format = ese_stream_probe_video_format (uri);
   m_stream = NULL;
   if (format == ESE_VIDEO_FORMAT_NAL) {
@@ -95,9 +94,10 @@ ESExtractor::prepare (const char *uri, const char *options)
   } else if (format == ESE_VIDEO_FORMAT_IVF) {
     m_stream = new ESEIVFStream ();
   }
-  if (m_stream && m_stream->prepare (uri, options))
-    found = true;
-  return found;
+  if (m_stream && m_stream->prepare (uri, options)) {
+    return (m_stream->processToNextFrame()  <= ESE_RESULT_ERROR);
+  }
+  return false;
 }
 
 //C API

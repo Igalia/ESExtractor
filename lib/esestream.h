@@ -72,6 +72,8 @@ public:
   ESEStream (ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN);
   virtual ~ESEStream ();
 
+  virtual void reset();
+
   bool prepare (const char* uri, const char* options = nullptr);
   virtual void parseOptions(const char* options);
   /// @brief This method will build the next frame (NAL or AU) available.
@@ -86,7 +88,7 @@ public:
 
   ESEVideoCodec codec() { return m_codec;};
   ESEBuffer * currentFrame() { return &m_currentFrame;}
-  ESEPacket*                  currentPacket() { return m_currentPacket;}
+  ESEPacket*                  currentPacket();
 
   /// @brief Returns the frame count.
   /// @return
@@ -99,10 +101,8 @@ protected:
 
   // Prepare the next frame available from the given buffer at given position.
   ESEBuffer  prepareFrame(ESEBuffer  buffer, uint32_t start, uint32_t end);
-  ESEPacket* prepareCurrentPacket (uint64_t pts = 0, uint64_t dts = 0, uint64_t duration = 0);
+  ESEPacket* prepareNextPacket (uint64_t pts = 0, uint64_t dts = 0, uint64_t duration = 0);
 
-  int32_t                             m_frameStartPos;
-  int32_t                             m_frameStartCodeLen;
   ESEVideoCodec                       m_codec;
   ESEVideoFormat                      m_format;
   std::map<std::string, std::string>  m_options;
@@ -111,10 +111,10 @@ protected:
   ESEBuffer                           m_buffer;
   uint32_t                            m_bufferPosition;
 
-  ESEBuffer                           m_nextFrame;
   ESEBuffer                           m_currentFrame;
   uint32_t                            m_frameCount;
   ESEPacket*                          m_currentPacket;
+  ESEPacket*                          m_nextPacket;
 };
 
 #endif //__ESE_STREAM_H__

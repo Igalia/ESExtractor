@@ -25,17 +25,26 @@
 
 
 ESENALStream::ESENALStream ():
-ESEStream (ESE_VIDEO_FORMAT_NAL),
-m_frameState (ESE_NAL_FRAME_STATE_NONE),
-m_nalCount (false),
-m_mpegDetected (false),
-m_audNalDetected (false),
-m_alignment (ESE_PACKET_ALIGNMENT_AU)
+ESEStream (ESE_VIDEO_FORMAT_NAL)
 {
+  reset ();
 }
 
 ESENALStream::~ESENALStream ()
 {
+}
+
+void ESENALStream::reset ()
+{
+  m_frameState = ESE_NAL_FRAME_STATE_NONE;
+  m_frameStartPos = 0;
+  m_nalCount = false;
+  m_mpegDetected = false;
+  m_audNalDetected = false;
+  m_alignment = ESE_PACKET_ALIGNMENT_NAL;
+  m_nextNAL = ESEBuffer();
+  m_nextFrame = ESEBuffer();
+  ESEStream::reset ();
 }
 
 const char *
@@ -158,12 +167,15 @@ ESEResult
 ESENALStream::processToNextFrame ()
 {
   ESEResult res;
+
+  if (m_nextPacket)
+    return ESE_RESULT_NEW_PACKET;
+
   if (m_alignment == ESE_PACKET_ALIGNMENT_NAL) {
     res = readStream ();
     if (res <= ESE_RESULT_LAST_PACKET) {
       m_currentFrame = m_nextFrame;
-      prepareCurrentPacket ();
-      m_frameCount++;
+      prepareNextPacket ();
     }
   } else {
     m_currentFrame = { };
@@ -178,8 +190,7 @@ ESENALStream::processToNextFrame ()
           const ESEBuffer & audNalu = ese_aud_nalu ((ESENaluCodec) m_codec);
           m_currentFrame.insert (m_currentFrame.begin (), audNalu.begin (),
               audNalu.end ());
-          prepareCurrentPacket ();
-          m_frameCount++;
+          prepareNextPacket ();
         }
         break;
       }

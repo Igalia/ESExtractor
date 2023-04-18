@@ -42,15 +42,11 @@ ese_stream_probe_video_format (const char *uri)
 }
 
 ESEStream::ESEStream (ESEVideoFormat format):
-m_frameStartPos (0),
-m_frameStartCodeLen (0),
-m_codec (ESE_VIDEO_CODEC_UNKNOWN),
 m_format (format),
-m_eos (false),
-m_bufferPosition(0),
-m_frameCount (0),
-m_currentPacket(nullptr)
+m_currentPacket (nullptr),
+m_nextPacket (nullptr)
 {
+  reset ();
 }
 
 ESEStream::~ESEStream ()
@@ -59,11 +55,29 @@ ESEStream::~ESEStream ()
       m_reader.fileSize ());
 }
 
+void
+ESEStream::reset()
+{
+  m_eos = false;
+  m_bufferPosition = 0;
+  m_frameCount = 0;
+  m_currentPacket = nullptr;
+  if (m_nextPacket)
+    delete m_nextPacket;
+  m_nextPacket = nullptr;
+  m_codec = ESE_VIDEO_CODEC_UNKNOWN;
+  m_buffer = ESEBuffer();
+  m_currentFrame = ESEBuffer ();
+  m_reader.reset();
+}
+
 bool
 ESEStream::prepare (const char *uri, const char *options)
 {
   parseOptions (options);
-  return m_reader.openFile (uri);
+  if (!m_reader.openFile (uri))
+    return false;
+  return (processToNextFrame() <= ESE_RESULT_ERROR);
 }
 
 ESEBuffer
@@ -90,15 +104,22 @@ ESEStream::prepareFrame (ESEBuffer buffer, uint32_t start,
 }
 
 ESEPacket *
-ESEStream::prepareCurrentPacket (uint64_t pts, uint64_t dts, uint64_t duration)
+ESEStream::prepareNextPacket (uint64_t pts, uint64_t dts, uint64_t duration)
 {
-  m_currentPacket = new ESEPacket ();
-  m_currentPacket->data = m_currentFrame.data ();
-  m_currentPacket->data_size = m_currentFrame.size ();
-  m_currentPacket->pts = pts;
-  m_currentPacket->dts = dts;
-  m_currentPacket->duration = duration;
+  m_nextPacket = new ESEPacket ();
+  m_nextPacket->data = m_currentFrame.data ();
+  m_nextPacket->data_size = m_currentFrame.size ();
+  m_nextPacket->pts = pts;
+  m_nextPacket->dts = dts;
+  m_nextPacket->duration = duration;
+  m_frameCount ++;
+  return m_nextPacket;
+}
 
+ESEPacket* ESEStream::currentPacket()
+{
+  m_currentPacket = m_nextPacket;
+  m_nextPacket = nullptr;
   return m_currentPacket;
 }
 
