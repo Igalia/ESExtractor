@@ -15,8 +15,7 @@
  * permissions and limitations under the License.
  */
 
-#ifndef __ESE_LOGGER_H__
-#define __ESE_LOGGER_H__
+#pragma once
 
 #include <stdarg.h>
 #include <string.h>
@@ -80,5 +79,3 @@ class Logger {
 
 #define DBG(FMT, ...) LOGGER(ES_LOG_LEVEL_DEBUG, "ESE_DEBUG\t", FMT, "\n", ##__VA_ARGS__)
 #define MEM_DUMP(DATA, LENGTH, FMT, ...) LOGGER_DATA(ES_LOG_LEVEL_MEMDUMP, DATA, LENGTH, "ESE_MEMDUMP\t", FMT, "", ##__VA_ARGS__)
-
-#endif // __ESE_LOGGER_H__
