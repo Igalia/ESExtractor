@@ -39,6 +39,8 @@ public:
   ESEIVFStream ();
   ~ESEIVFStream ();
 
+  virtual void reset ();
+
 protected:
   ESEBuffer getStartCode() {return {};}
   ESEResult processToNextFrame();

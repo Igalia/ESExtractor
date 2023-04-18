@@ -40,6 +40,9 @@ class ESENALStream : public ESEStream {
 public:  
   ESENALStream ();
   ~ESENALStream ();
+
+  virtual void reset();
+
   ESEResult processToNextFrame();
   /// @brief Returns the NAL count.
   /// @return
@@ -58,12 +61,13 @@ private:
   const char* alignmentName();
 
   ESENALFrameState            m_frameState;
+  int32_t                     m_frameStartPos;
   uint32_t                    m_nalCount;
   bool                        m_mpegDetected;
   ESEBuffer                   m_nextNAL;
   bool                        m_audNalDetected;
   ESEPacketAlignment          m_alignment;
-
+  ESEBuffer                   m_nextFrame;
 };
 
 #endif //__ESE_NALSTREAM_H__
