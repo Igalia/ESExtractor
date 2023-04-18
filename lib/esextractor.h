@@ -17,7 +17,41 @@
 
 #pragma once
 
-#include "esestream.h"
+#include <cstdint>
+
+typedef enum ESEVideoCodec {
+  ESE_VIDEO_CODEC_UNKNOWN = 0,
+  ESE_VIDEO_CODEC_H264,
+  ESE_VIDEO_CODEC_H265,
+  ESE_VIDEO_CODEC_VP8,
+  ESE_VIDEO_CODEC_VP9,
+  ESE_VIDEO_CODEC_AV1,
+} ESEVideoCodec;
+
+typedef enum ESEVideoFormat {
+  ESE_VIDEO_FORMAT_UNKNOWN = 0,
+  ESE_VIDEO_FORMAT_NAL,
+  ESE_VIDEO_FORMAT_IVF,
+} ESEVideoFormat;
+
+typedef enum _ESEResult
+{
+  /*< public >*/
+  ESE_RESULT_NEW_PACKET = 0,
+  ESE_RESULT_LAST_PACKET,
+  ESE_RESULT_EOS,
+  ESE_RESULT_NO_PACKET ,
+  ESE_RESULT_ERROR,
+} ESEResult;
+
+typedef struct _ESEPacket {
+    uint8_t * data;
+    int32_t data_size;
+    int32_t packet_number;
+    uint64_t pts;
+    uint64_t dts;
+    uint64_t duration;
+} ESEPacket;
 
 
 #if (defined _WIN32 || defined __CYGWIN__) && !defined(ES_STATIC_COMPILATION)
@@ -34,61 +68,38 @@
   #endif
 #endif
 
-class ESExtractor {
-public:
-  ESExtractor();
-  ~ESExtractor();
-  bool prepare(const char *uri, const char* options);
-  void setOptions(const char* options);
-  /// @brief This method will build the next frame (NAL or AU) available.
-  /// @return
-  ESEResult processToNextPacket();
-  ESEVideoCodec codec();
-  ESEVideoFormat format();
-  const char* codec_name();
-
-  /// @brief Reset the extractor state
-  ESEPacket* currentPacket();
-  /// @brief Returns the packet count.
-  /// @return
-  int packetCount();
-
-private:
-
-  ESEStream* m_stream;
-};
-
+struct ESExtractor;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 ES_EXTRACTOR_API
-ESExtractor * es_extractor_new (const char * uri, const char* options);
+ESExtractor * es_extractor_new (const char *uri, const char *options);
 
 ES_EXTRACTOR_API
-void es_extractor_set_options (ESExtractor * extractor, const char* options);
+void es_extractor_set_options (ESExtractor *extractor, const char *options);
 
 ES_EXTRACTOR_API
-ESEResult es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** pkt);
+ESEResult es_extractor_read_packet (ESExtractor *extractor, ESEPacket **pkt);
 
 ES_EXTRACTOR_API
-void es_extractor_clear_packet (ESEPacket * pkt);
+void es_extractor_clear_packet (ESEPacket *pkt);
 
 ES_EXTRACTOR_API
-ESEVideoFormat es_extractor_video_format(ESExtractor * extractor);
+ESEVideoFormat es_extractor_video_format(ESExtractor *extractor);
 
 ES_EXTRACTOR_API
-ESEVideoCodec es_extractor_video_codec(ESExtractor * extractor);
+ESEVideoCodec es_extractor_video_codec(ESExtractor *extractor);
 
 ES_EXTRACTOR_API
-const char* es_extractor_video_codec_name(ESExtractor * extractor);
+const char* es_extractor_video_codec_name(ESExtractor *extractor);
 
 ES_EXTRACTOR_API
-int es_extractor_packet_count (ESExtractor * extractor);
+int es_extractor_packet_count (ESExtractor *extractor);
 
 ES_EXTRACTOR_API
-void es_extractor_teardown (ESExtractor * extractor);
+void es_extractor_teardown (ESExtractor *extractor);
 
 ES_EXTRACTOR_API
 void es_extractor_set_log_level (uint8_t level);

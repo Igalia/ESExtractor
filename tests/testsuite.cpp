@@ -67,5 +67,11 @@ main (int argc, char *argv[])
   assert(parse_file (nullptr, nullptr, log_level) == -1);
   assert(parse_file ("/this/path/does/not/exists", nullptr, log_level) == -1);
 
+  assert(es_extractor_read_packet(nullptr, nullptr) == ESE_RESULT_ERROR);
+  assert(es_extractor_packet_count(nullptr) == -1);
+  assert(es_extractor_video_format(nullptr) == ESE_VIDEO_FORMAT_UNKNOWN);
+  assert(es_extractor_video_codec(nullptr) == ESE_VIDEO_CODEC_UNKNOWN);
+  assert(es_extractor_video_codec_name(nullptr) == nullptr);
+
   return 0;
 }

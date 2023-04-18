@@ -19,102 +19,84 @@
 #include "eseivfstream.h"
 #include "esenalstream.h"
 #include "eselogger.h"
+#include "eseutils.h"
 
-#include <assert.h>
 
-ESExtractor::ESExtractor ():
-m_stream (nullptr)
-{
-}
+#include <cassert>
 
-ESExtractor::~ESExtractor ()
-{
-  if (m_stream)
-    delete m_stream;
-}
 
-ESEVideoFormat ESExtractor::format ()
-{
-  if (m_stream)
+struct ESExtractor {
+
+  ESExtractor () {
+  }
+
+  ESEVideoFormat format ()
+  {
     return m_stream->format ();
-  return ESE_VIDEO_FORMAT_UNKNOWN;
-}
+  }
 
-ESEVideoCodec ESExtractor::codec ()
-{
-  if (m_stream)
-    return m_stream->codec ();
-  return ESE_VIDEO_CODEC_UNKNOWN;
-}
+  ESEVideoCodec codec ()
+  {
+      return m_stream->codec ();
+  }
 
-const char *
-ESExtractor::codec_name ()
-{
-  switch (codec ()) {
-    case ESE_VIDEO_CODEC_H264:
-      return "h264";
-    case ESE_VIDEO_CODEC_H265:
-      return "h265";
-    case ESE_VIDEO_CODEC_VP8:
-      return "vp8";
-    case ESE_VIDEO_CODEC_VP9:
-      return "vp9";
-    case ESE_VIDEO_CODEC_AV1:
-      return "av1";
-    default:
-      return "unknown";
-  };
-}
+  const char *codec_name ()
+  {
+    switch (codec ()) {
+      case ESE_VIDEO_CODEC_H264:
+        return "h264";
+      case ESE_VIDEO_CODEC_H265:
+        return "h265";
+      case ESE_VIDEO_CODEC_VP8:
+        return "vp8";
+      case ESE_VIDEO_CODEC_VP9:
+        return "vp9";
+      case ESE_VIDEO_CODEC_AV1:
+        return "av1";
+      default:
+        return "unknown";
+    };
+  }
 
-int
-ESExtractor::packetCount ()
-{
-  if (m_stream)
+  int packetCount ()
+  {
     return m_stream->frameCount ();
+  }
 
-  return 0;
-}
-
-ESEPacket *
-ESExtractor::currentPacket ()
-{
-  if (m_stream)
+  ESEPacket * currentPacket ()
+  {
     return m_stream->currentPacket ();
+  }
 
-  return nullptr;
-}
-
-ESEResult ESExtractor::processToNextPacket ()
-{
-  if (m_stream)
+  ESEResult processToNextPacket ()
+  {
     return m_stream->processToNextFrame ();
-
-  return ESE_RESULT_ERROR;
-}
-
-bool
-ESExtractor::prepare (const char *uri, const char *options)
-{
-  ESEVideoFormat format = ese_stream_probe_video_format (uri);
-  m_stream = NULL;
-  if (format == ESE_VIDEO_FORMAT_NAL) {
-    m_stream = new ESENALStream ();
-  } else if (format == ESE_VIDEO_FORMAT_IVF) {
-    m_stream = new ESEIVFStream ();
   }
-  if (m_stream && m_stream->prepare (uri, options)) {
-    return (m_stream->processToNextFrame()  <= ESE_RESULT_ERROR);
-  }
-  return false;
-}
 
-void ESExtractor::setOptions (const char *options)
-{
-    assert(m_stream);
-    m_stream->reset ();
-    m_stream->setOptions (options);
-    m_stream->processToNextFrame();
-}
+  bool prepare (const char *uri, const char *options)
+  {
+    ESEVideoFormat format = ese_stream_probe_video_format (uri);
+    m_stream = nullptr;
+    if (format == ESE_VIDEO_FORMAT_NAL) {
+      m_stream = make_unique<ESENALStream>();
+    } else if (format == ESE_VIDEO_FORMAT_IVF) {
+      m_stream = make_unique<ESEIVFStream>();
+    }
+    if (m_stream && m_stream->prepare (uri, options)) {
+      return (m_stream->processToNextFrame()  <= ESE_RESULT_ERROR);
+    }
+    return false;
+  }
+
+  void setOptions (const char *options)
+  {
+      m_stream->reset ();
+      m_stream->setOptions (options);
+      m_stream->processToNextFrame();
+  }
+
+  std::unique_ptr<ESEStream> m_stream;
+};
 
 //C API
 
@@ -132,12 +114,14 @@ es_extractor_new (const char *uri, const char *options)
 
 void es_extractor_set_options (ESExtractor * extractor, const char* options)
 {
+  ESE_CHECK_VOID (extractor != NULL);
   extractor->setOptions (options);
 }
 
 ESEResult
 es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** packet)
 {
+  ESE_CHECK (extractor != NULL, ESE_RESULT_ERROR);
   ESEResult res = ESE_RESULT_NEW_PACKET;
   res = extractor->processToNextPacket ();
   if(res <  ESE_RESULT_EOS)
@@ -151,24 +135,28 @@ es_extractor_read_packet (ESExtractor * extractor, ESEPacket ** packet)
 ESEVideoCodec
 es_extractor_video_codec (ESExtractor * extractor)
 {
+  ESE_CHECK (extractor != NULL, ESE_VIDEO_CODEC_UNKNOWN);
   return extractor->codec ();
 }
 
 ESEVideoFormat
 es_extractor_video_format (ESExtractor * extractor)
 {
+  ESE_CHECK (extractor != NULL, ESE_VIDEO_FORMAT_UNKNOWN);
   return extractor->format ();
 }
 
 const char *
 es_extractor_video_codec_name (ESExtractor * extractor)
 {
+  ESE_CHECK (extractor != NULL, nullptr);
   return extractor->codec_name ();
 }
 
 int
 es_extractor_packet_count (ESExtractor * extractor)
 {
+  ESE_CHECK (extractor != NULL, -1);
   return extractor->packetCount ();
 }
 
@@ -182,6 +170,7 @@ es_extractor_clear_packet (ESEPacket * pkt)
 void
 es_extractor_teardown (ESExtractor * extractor)
 {
+  ESE_CHECK_VOID (extractor != NULL);
   delete (extractor);
 }
 
