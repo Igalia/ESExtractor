@@ -15,8 +15,7 @@
  * permissions and limitations under the License.
  */
 
-#ifndef __ESE_IVFSTREAM_H__
-#define __ESE_IVFSTREAM_H__
+#pragma once
 
 #include "esestream.h"
 
@@ -53,5 +52,3 @@ private:
   bool m_headerFound;
   uint64_t m_lastPts;
 };
-
-#endif //__ESE_IVFSTREAM_H__

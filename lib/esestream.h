@@ -15,8 +15,7 @@
  * permissions and limitations under the License.
  */
 
-#ifndef __ESE_STREAM_H__
-#define __ESE_STREAM_H__
+#pragma once
 
 #include "esereader.h"
 
@@ -118,5 +117,3 @@ protected:
   ESEPacket*                          m_currentPacket;
   ESEPacket*                          m_nextPacket;
 };
-
-#endif //__ESE_STREAM_H__

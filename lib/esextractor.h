@@ -15,8 +15,7 @@
  * permissions and limitations under the License.
  */
 
-#ifndef __ESE_EXTRACTOR_H__
-#define __ESE_EXTRACTOR_H__
+#pragma once
 
 #include "esestream.h"
 
@@ -97,4 +96,3 @@ void es_extractor_set_log_level (uint8_t level);
 #ifdef __cplusplus
 }
 #endif
-#endif //__ESE_EXTRACTOR_H__
