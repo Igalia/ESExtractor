@@ -60,7 +60,7 @@ jobs:
 
       - name: Test
         run: |
-          meson test --num-processes=1 --wrap=${GITHUB_WORKSPACE}/valgrind/valgrind.sh --verbose --timeout-multiplier=2 -C builddir
+          meson test --wrap=${GITHUB_WORKSPACE}/valgrind/valgrind.sh --verbose --timeout-multiplier=2 -C builddir
 
       - name: Install
         run: ninja -C builddir install
