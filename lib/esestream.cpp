@@ -112,7 +112,8 @@ ESEPacket *
 ESEStream::prepareNextPacket (uint64_t pts, uint64_t dts, uint64_t duration)
 {
   m_nextPacket = new ESEPacket ();
-  m_nextPacket->data = m_currentFrame.data ();
+  m_nextPacket->data = static_cast<std::uint8_t*>(std::malloc(m_currentFrame.size ()));
+  std::memcpy (m_nextPacket->data, m_currentFrame.data (), m_currentFrame.size ());
   m_nextPacket->data_size = m_currentFrame.size ();
   m_nextPacket->pts = pts;
   m_nextPacket->dts = dts;

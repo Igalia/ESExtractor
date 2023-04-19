@@ -163,8 +163,10 @@ es_extractor_packet_count (ESExtractor * extractor)
 void
 es_extractor_clear_packet (ESEPacket * pkt)
 {
-  if (pkt)
+  if (pkt) {
+    std::free (pkt->data);
     delete pkt;
+  }
 }
 
 void
