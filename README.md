@@ -1,10 +1,12 @@
 # ESExtractor
 
 Elementary stream frame extractor:
-The purpose of this library is to parse H26x streams and extract frames with a simple API inspired from [FFmpeg](https://ffmpeg.org) API 
-[av_read_frame](https://ffmpeg4d.dpldocs.info/ffmpeg.libavformat.avformat.av_read_frame.html). 
-The H26x frame can be [NAL](https://en.wikipedia.org/wiki/Network_Abstraction_Layer) or [AUs](https://en.wikipedia.org/wiki/Network_Abstraction_Layer#Access_Units)
+The purpose of this library is to parse streams and extract frames with a simple API inspired from [FFmpeg](https://ffmpeg.org) API
+[av_read_frame](https://ffmpeg4d.dpldocs.info/ffmpeg.libavformat.avformat.av_read_frame.html).
 
+It supports:
+  - NAL based streams which can be [NAL](https://en.wikipedia.org/wiki/Network_Abstraction_Layer) or [AUs](https://en.wikipedia.org/wiki/Network_Abstraction_Layer#Access_Units) aligned
+  - IVF based streams
 
 ## Setup
 
@@ -28,5 +30,11 @@ $ pip3 install --user meson
 ```sh
 $ meson builddir
 $ ninja -C builddir
-$ meson builddir test
+$ meson test -C builddir
+```
+
+### Test with a sample
+
+```
+$ ./builddir/tests/testesextractor -d -d -f samples/clip-a.h264
 ```
