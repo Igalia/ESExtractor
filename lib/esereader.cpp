@@ -42,18 +42,22 @@ ESEReader::reset (bool full)
 bool
 ESEReader::openFile (const char *fileName)
 {
-  bool ret = false;
   if (m_file.is_open ())
     return true;
+
+  if (!fileName)
+    return false;
+
   m_file = std::ifstream (fileName, std::ios::binary | std::ios::ate);
   DBG ("The file %s is now %s", fileName, m_file.is_open ()? "open" : "closed");
   if (m_file.is_open ()) {
     m_fileSize = m_file.tellg ();
-    ret = true;
     m_fileName = fileName;
-  } else
-    ERR ("Unable to open the file %s", fileName);
-  return ret;
+    return true;
+  }
+
+  ERR ("Unable to open the file %s", fileName);
+  return false;
 }
 
 uint32_t ESEReader::readFile (int32_t data_size, int32_t pos, bool append)
