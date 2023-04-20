@@ -13,6 +13,17 @@ env:
   REPO_NAME: ESExtractor
 
 jobs:
+  clang-format:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Install Clang-Format
+      run: sudo apt-get update && sudo apt-get -y install clang-format
+    - name: Run Clang-Format
+      run:  |
+        find . -name "*.cpp" -o -name "*.hpp" | xargs -I {} clang-format -i {} -n --verbose --Werror
+
   ci-linux-x86_64:
     strategy:
       matrix:

@@ -23,9 +23,8 @@
 #define MPEG_HEADER_SIZE 3
 #define MAX_SEARCH_SIZE 5
 
-
-ESENALStream::ESENALStream ():
-ESEStream (ESE_VIDEO_FORMAT_NAL)
+ESENALStream::ESENALStream ()
+: ESEStream (ESE_VIDEO_FORMAT_NAL)
 {
   reset ();
 }
@@ -34,7 +33,8 @@ ESENALStream::~ESENALStream ()
 {
 }
 
-void ESENALStream::reset ()
+void
+ESENALStream::reset ()
 {
   m_frameState = ESE_NAL_FRAME_STATE_NONE;
   m_frameStartPos = 0;
@@ -42,8 +42,8 @@ void ESENALStream::reset ()
   m_mpegDetected = false;
   m_audNalDetected = false;
   m_alignment = ESE_PACKET_ALIGNMENT_NAL;
-  m_nextNAL = ESEBuffer();
-  m_nextFrame = ESEBuffer();
+  m_nextNAL = ESEBuffer ();
+  m_nextFrame = ESEBuffer ();
   ESEStream::reset ();
 }
 
@@ -86,7 +86,7 @@ ESENALStream::parseStream (int32_t start_position)
         m_mpegDetected = true;
       } else {
         ERR ("Unable to find any start code in buffer size %d. Exit.",
-            buffer_size);
+          buffer_size);
         return -1;
       }
     } else if (m_mpegDetected && m_codec != ESE_VIDEO_CODEC_UNKNOWN) {
@@ -123,33 +123,32 @@ ESENALStream::readStream ()
     return ESE_RESULT_EOS;
   }
 
-  if (m_bufferPosition >= (uint32_t) m_buffer.size ())
+  if (m_bufferPosition >= (uint32_t)m_buffer.size ())
     m_buffer = m_reader.getBuffer (BUFFER_MAX_PROBE_LENGTH);
 
-  while (m_bufferPosition <= (uint32_t) m_buffer.size () || !m_reader.isEOS ()) {
+  while (m_bufferPosition <= (uint32_t)m_buffer.size () || !m_reader.isEOS ()) {
     pos = parseStream (m_bufferPosition);
-    if (pos == (int32_t) - 1) {
+    if (pos == (int32_t)-1) {
       return ESE_RESULT_NO_PACKET;
     } else {
       if (m_frameState == ESE_NAL_FRAME_STATE_END) {
         m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, pos);
         m_nalCount++;
         DBG ("Found a new frame (%d) of size %zd at pos %d", m_nalCount,
-            m_nextFrame.size (), m_reader.filePosition () + m_frameStartPos);
+          m_nextFrame.size (), m_reader.filePosition () + m_frameStartPos);
         m_frameStartPos = pos;
         m_bufferPosition = pos;
         m_frameState = ESE_NAL_FRAME_STATE_NONE;
         return ESE_RESULT_NEW_PACKET;
       } else {
         m_bufferPosition = pos;
-        if (m_bufferPosition >= (uint32_t) m_buffer.size ()) {
+        if (m_bufferPosition >= (uint32_t)m_buffer.size ()) {
           if (m_reader.isEOS ()) {
-            m_nextFrame =
-                prepareFrame (m_buffer, m_frameStartPos, m_buffer.size ());
+            m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, m_buffer.size ());
             m_nalCount++;
             DBG ("Found a last frame (%d) of size %zd at pos %d",
-                m_nalCount, m_nextFrame.size (),
-                m_reader.filePosition () + m_frameStartPos);
+              m_nalCount, m_nextFrame.size (),
+              m_reader.filePosition () + m_frameStartPos);
             m_eos = true;
             return ESE_RESULT_LAST_PACKET;
           } else {
@@ -178,18 +177,18 @@ ESENALStream::processToNextFrame ()
       prepareNextPacket ();
     }
   } else {
-    m_currentFrame = { };
+    m_currentFrame = {};
     while ((res = readStream ()) <= ESE_RESULT_EOS) {
-      if (!ese_is_aud_nalu (m_nextFrame, (ESENaluCodec) m_codec)) {
+      if (!ese_is_aud_nalu (m_nextFrame, (ESENaluCodec)m_codec)) {
         m_currentFrame.insert (m_currentFrame.end (), m_nextFrame.begin (),
-            m_nextFrame.end ());
+          m_nextFrame.end ());
       }
       if (res == ESE_RESULT_EOS
-          || ese_is_new_frame (m_nextFrame, (ESENaluCodec) m_codec)) {
+        || ese_is_new_frame (m_nextFrame, (ESENaluCodec)m_codec)) {
         if (m_currentFrame.size () > 0) {
-          const ESEBuffer & audNalu = ese_aud_nalu ((ESENaluCodec) m_codec);
+          const ESEBuffer &audNalu = ese_aud_nalu ((ESENaluCodec)m_codec);
           m_currentFrame.insert (m_currentFrame.begin (), audNalu.begin (),
-              audNalu.end ());
+            audNalu.end ());
           prepareNextPacket ();
         }
         break;

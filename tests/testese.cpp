@@ -15,16 +15,15 @@
  * permissions and limitations under the License.
  */
 
-#include <fstream>
 #include <algorithm>
 #include <cassert>
+#include <fstream>
 
-#include "esextractor.h"
 #include "eselogger.h"
-
+#include "esextractor.h"
 
 static void
-dump_packet (ESExtractor * esextractor, ESEPacket* pkt)
+dump_packet (ESExtractor *esextractor, ESEPacket *pkt)
 {
   const char *packet_type_name = es_extractor_video_codec_name (esextractor);
   INFO ("Got a %s packet of size %d pts=%lld", packet_type_name, pkt->data_size, pkt->pts);
@@ -36,28 +35,28 @@ dump_packet (ESExtractor * esextractor, ESEPacket* pkt)
 /// @param options Options used by the esextractor
 /// @param debug_level set the debug level of the esextractor
 /// @return a new esextractor object or nullptr if the path is not a valid media file.
-ESExtractor*
-create_es_extractor (const char *fileName, const char* options, uint8_t debug_level) {
+ESExtractor *
+create_es_extractor (const char *fileName, const char *options, uint8_t debug_level)
+{
   es_extractor_set_log_level (debug_level);
   INFO ("Extracting packets from %s with options %s", fileName, options);
   ESExtractor *esextractor = es_extractor_new (fileName, options);
   return esextractor;
 }
 
-
 /// @brief  Returns the number of frame found
 /// @param extractor a valid extractor
 /// @return the number of frames
 int
-parse (ESExtractor* esextractor)
+parse (ESExtractor *esextractor)
 {
   ESEResult res;
   ESEPacket *pkt;
   int packet_count;
 
-  while ((res =
-          es_extractor_read_packet (esextractor,
-              &pkt)) < ESE_RESULT_EOS) {
+  while ((res = es_extractor_read_packet (esextractor,
+            &pkt))
+    < ESE_RESULT_EOS) {
 
     dump_packet (esextractor, pkt);
     es_extractor_clear_packet (pkt);
@@ -68,13 +67,15 @@ parse (ESExtractor* esextractor)
   return packet_count;
 }
 
-int parse_file (const char *fileName, const char* options, uint8_t debug_level) {
-  ESExtractor* esextractor = create_es_extractor (fileName, options, debug_level);
+int
+parse_file (const char *fileName, const char *options, uint8_t debug_level)
+{
+  ESExtractor *esextractor = create_es_extractor (fileName, options, debug_level);
   if (!esextractor) {
     ERR ("Unable to discover a compatible stream. Exit");
     return -1;
   }
-  int packet_count = parse(esextractor);
+  int packet_count = parse (esextractor);
   es_extractor_teardown (esextractor);
   return packet_count;
 }

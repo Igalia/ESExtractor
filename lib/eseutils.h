@@ -18,27 +18,26 @@
 #pragma once
 
 #if (__cplusplus < 201402L)
-#include <memory>
+#  include <memory>
 template<class T, class... Args>
-std::unique_ptr<T> make_unique(Args&&... args)
+std::unique_ptr<T>
+make_unique (Args &&...args)
 {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  return std::unique_ptr<T> (new T (std::forward<Args> (args)...));
 }
 #else
-# define make_unique std::make_unique
+#  define make_unique std::make_unique
 #endif
 
-#define ESE_CHECK(expr, val) \
-  if (expr) \
-    { } \
-  else {\
-    ERR ("Check '%s' fails", #expr);\
-    return val;\
+#define ESE_CHECK(expr, val)         \
+  if (expr) {                        \
+  } else {                           \
+    ERR ("Check '%s' fails", #expr); \
+    return val;                      \
   }
-#define ESE_CHECK_VOID(expr) \
-  if (expr) \
-   { } \
-   else { \
-     ERR ("Check '%s' fails", #expr);\
-    return;\
+#define ESE_CHECK_VOID(expr)         \
+  if (expr) {                        \
+  } else {                           \
+    ERR ("Check '%s' fails", #expr); \
+    return;                          \
   }

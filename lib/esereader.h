@@ -18,52 +18,50 @@
 #pragma once
 
 #include <cstdint>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <istream>
-#include <vector>
 #include <string>
+#include <vector>
 
-#define ESEBuffer std::vector <unsigned char>
+#define ESEBuffer std::vector<unsigned char>
 
-template < typename T > static inline std::vector <T>
-subVector (std::vector < T > const &v, int pos, int size)
+template<typename T> static inline std::vector<T>
+subVector (std::vector<T> const &v, int pos, int size)
 {
   auto first = v.cbegin () + pos;
-  auto last = v.cbegin () + pos + size;
+  auto last  = v.cbegin () + pos + size;
 
-  std::vector < T > vec (first, last);
+  std::vector<T> vec (first, last);
   return vec;
 }
 
 class ESEReader {
-public:
-  ESEReader();
-  ~ESEReader();
+  public:
+  ESEReader ();
+  ~ESEReader ();
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
 
-  bool openFile(const char* fileName);
+  bool openFile (const char *fileName);
   /// @brief Reset the reader
   void reset (bool full = true);
   /// @brief Read data from file
   ESEBuffer getBuffer (uint32_t size);
-  int32_t readSize() { return m_readSize;}
-  int32_t fileSize() { return m_fileSize;}
-  int32_t filePosition() { return m_filePosition;}
+  int32_t   readSize () { return m_readSize; }
+  int32_t   fileSize () { return m_fileSize; }
+  int32_t   filePosition () { return m_filePosition; }
 
-  bool    isEOS () {return m_bufferSize == 0 && m_readSize == m_fileSize;}
+  bool isEOS () { return m_bufferSize == 0 && m_readSize == m_fileSize; }
 
-private:
-  uint32_t readFile(int32_t data_size, int32_t pos = 0, bool append = false );
+  private:
+  uint32_t readFile (int32_t data_size, int32_t pos = 0, bool append = false);
 
-  std::ifstream               m_file;
-  std::string                 m_fileName;
-  int32_t                     m_filePosition;
-  int32_t                     m_fileSize;
-
-  int32_t                     m_bufferSize;
-
-  int32_t                     m_readSize;
-  ESEBuffer                   m_buffer;
+  std::ifstream m_file;
+  std::string   m_fileName;
+  int32_t       m_filePosition;
+  int32_t       m_fileSize;
+  int32_t       m_bufferSize;
+  int32_t       m_readSize;
+  ESEBuffer     m_buffer;
 };

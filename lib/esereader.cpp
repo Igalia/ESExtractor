@@ -20,7 +20,6 @@
 
 #define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 
-
 ESEReader::ESEReader ()
 {
   reset ();
@@ -49,7 +48,7 @@ ESEReader::openFile (const char *fileName)
     return false;
 
   m_file = std::ifstream (fileName, std::ios::binary | std::ios::ate);
-  DBG ("The file %s is now %s", fileName, m_file.is_open ()? "open" : "closed");
+  DBG ("The file %s is now %s", fileName, m_file.is_open () ? "open" : "closed");
   if (m_file.is_open ()) {
     m_fileSize = m_file.tellg ();
     m_fileName = fileName;
@@ -60,8 +59,11 @@ ESEReader::openFile (const char *fileName)
   return false;
 }
 
-uint32_t ESEReader::readFile (int32_t data_size, int32_t pos, bool append)
+uint32_t
+ESEReader::readFile (int32_t data_size, int32_t pos, bool append)
 {
+  ESEBuffer buffer;
+  size_t read_size;
   if (!m_fileSize)
     m_fileSize = m_file.tellg ();
   if (!m_fileSize) {
@@ -70,23 +72,21 @@ uint32_t ESEReader::readFile (int32_t data_size, int32_t pos, bool append)
   }
 
   DBG ("Read %d at pos %d append %d from file size %d", data_size, pos, append,
-      m_fileSize);
+    m_fileSize);
   m_file.clear ();
   m_file.seekg (pos, m_file.beg);
   m_filePosition = pos;
-  ESEBuffer
-      buffer;
+
   buffer.resize (data_size);
-  m_file.read ((char *) buffer.data (), data_size);
-  size_t
-      read_size = m_file.gcount ();
+  m_file.read ((char *)buffer.data (), data_size);
+  read_size = m_file.gcount ();
   buffer.resize (read_size);
   m_readSize += read_size;
   m_filePosition += read_size;
   if (append) {
     m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
     DBG ("ReadFile: Append %d to a buffer of new size %zd read %zd", data_size,
-        m_buffer.size (), read_size);
+      m_buffer.size (), read_size);
   } else {
     m_buffer = buffer;
     DBG ("ReadFile: Read buffer %d of size read %zd", data_size, read_size);
@@ -103,7 +103,8 @@ ESEReader::getBuffer (uint32_t size)
 
   while (m_buffer.size () < size) {
     if (readFile (BUFFER_MAX_PROBE_LENGTH, m_filePosition,
-            true) < BUFFER_MAX_PROBE_LENGTH)
+          true)
+      < BUFFER_MAX_PROBE_LENGTH)
       break;
   }
   if (m_buffer.size () < size)

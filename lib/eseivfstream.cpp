@@ -19,19 +19,18 @@
 #include "eselogger.h"
 #include "esereader.h"
 
-#define IVF_HEADER_SIZE sizeof(IVFHeader)
-#define IVF_FRAME_HEADER_SIZE sizeof(IVFFrameHeader)
+#define IVF_HEADER_SIZE sizeof (IVFHeader)
+#define IVF_FRAME_HEADER_SIZE sizeof (IVFFrameHeader)
 
-#pragma pack(push,1)
-struct IVFFrameHeader
-{
+#pragma pack(push, 1)
+struct IVFFrameHeader {
   uint32_t frame_size;
   uint64_t timestamp;
 };
 #pragma pack(pop)
 
-ESEIVFStream::ESEIVFStream ():
-ESEStream (ESE_VIDEO_FORMAT_IVF)
+ESEIVFStream::ESEIVFStream ()
+: ESEStream (ESE_VIDEO_FORMAT_IVF)
 {
   reset ();
 }
@@ -40,7 +39,8 @@ ESEIVFStream::~ESEIVFStream ()
 {
 }
 
-void ESEIVFStream::reset ()
+void
+ESEIVFStream::reset ()
 {
   m_headerFound = false;
   m_lastPts = 0;
@@ -98,7 +98,7 @@ ESEIVFStream::processToNextFrame ()
   m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
   prepareNextPacket (frame_header.timestamp, frame_header.timestamp,
-      m_lastPts - frame_header.timestamp);
+    m_lastPts - frame_header.timestamp);
 
   m_lastPts = frame_header.timestamp;
 
@@ -106,7 +106,7 @@ ESEIVFStream::processToNextFrame ()
     res = ESE_RESULT_LAST_PACKET;
 
   DBG ("Found a new IVF frame (%d) of size %zd", m_frameCount,
-      m_currentFrame.size ());
+    m_currentFrame.size ());
 
   return res;
 }

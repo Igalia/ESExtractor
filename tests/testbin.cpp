@@ -22,36 +22,42 @@
 
 #include "testese.h"
 
-class CmdLineParser{
-    public:
-        CmdLineParser (int &argc, char **argv){
-            for (int i=1; i < argc; ++i)
-                this->tokens.push_back(std::string(argv[i]));
-        }
+class CmdLineParser {
+  public:
+  CmdLineParser (int &argc, char **argv)
+  {
+    for (int i = 1; i < argc; ++i)
+      this->tokens.push_back (std::string (argv[i]));
+  }
 
-        const std::string& getOption(const std::string &option) const{
-            std::vector<std::string>::const_iterator itr;
-            itr =  std::find(this->tokens.begin(), this->tokens.end(), option);
-            if (itr != this->tokens.end() && ++itr != this->tokens.end()){
-                return *itr;
-            }
-            static const std::string empty_string("");
-            return empty_string;
-        }
-        int optionExists(const std::string &option) const{
-            return std::count(this->tokens.begin(), this->tokens.end(), option);
-        }
-    private:
-        std::vector <std::string> tokens;
+  const std::string &getOption (const std::string &option) const
+  {
+    std::vector<std::string>::const_iterator itr;
+    itr = std::find (this->tokens.begin (), this->tokens.end (), option);
+    if (itr != this->tokens.end () && ++itr != this->tokens.end ()) {
+      return *itr;
+    }
+    static const std::string empty_string ("");
+    return empty_string;
+  }
+  int optionExists (const std::string &option) const
+  {
+    return std::count (this->tokens.begin (), this->tokens.end (), option);
+  }
+
+  private:
+  std::vector<std::string> tokens;
 };
 
-void usage(int argc, char *argv[]) {
+void
+usage (int argc, char *argv[])
+{
   std::cout << "Usage: " << argv[0] << " -f input_file" << std::endl;
   std::cout << std::endl;
-  std::cout << "Options: "<< std::endl;
-  std::cout << "-h:\t show this help message and exit"<< std::endl;
-  std::cout << "-o:\t add option to the parser cmd line"<< std::endl;
-  std::cout << "-d:\t increment the debug level which each occurences (ie -d -d = level info(2))"<< std::endl;
+  std::cout << "Options: " << std::endl;
+  std::cout << "-h:\t show this help message and exit" << std::endl;
+  std::cout << "-o:\t add option to the parser cmd line" << std::endl;
+  std::cout << "-d:\t increment the debug level which each occurences (ie -d -d = level info(2))" << std::endl;
 }
 
 int
@@ -61,24 +67,24 @@ main (int argc, char *argv[])
 
   std::ofstream myfile;
 
-  CmdLineParser cmdLine(argc, argv);
-  if(cmdLine.optionExists("-h")) {
-    usage(argc, argv);
+  CmdLineParser cmdLine (argc, argv);
+  if (cmdLine.optionExists ("-h")) {
+    usage (argc, argv);
     return 0;
   }
 
-  for (int i = 0; i < cmdLine.optionExists("-d"); i++){
-    debug ++;
+  for (int i = 0; i < cmdLine.optionExists ("-d"); i++) {
+    debug++;
   }
 
-  const std::string &option = cmdLine.getOption("-o");
+  const std::string &option = cmdLine.getOption ("-o");
 
-  const std::string &fileName = cmdLine.getOption("-f");
-  if (fileName.empty()){
+  const std::string &fileName = cmdLine.getOption ("-f");
+  if (fileName.empty ()) {
     std::cerr << "Error: No input file specified." << std::endl;
-    usage(argc, argv);
+    usage (argc, argv);
     return 1;
   }
 
-  return (int)(parse_file (fileName.c_str(), option.c_str(), debug) < 0);
+  return (int)(parse_file (fileName.c_str (), option.c_str (), debug) < 0);
 }

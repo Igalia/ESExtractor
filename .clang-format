@@ -1,0 +1,16 @@
+---
+BasedOnStyle:  WebKit
+
+AlwaysBreakAfterReturnType: TopLevel
+ConstructorInitializerIndentWidth: 0
+ContinuationIndentWidth: 2
+IndentCaseLabels: true
+IndentPPDirectives: AfterHash
+IndentWidth:     2
+PointerAlignment: Right
+SpaceBeforeParens: Always
+
+---
+# Language: ObjC
+# PointerAlignment: Right
+...

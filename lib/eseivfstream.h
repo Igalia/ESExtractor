@@ -20,35 +20,34 @@
 #include "esestream.h"
 
 struct IVFHeader {
-    uint32_t signature; // FourCC
-    uint16_t version;
-    uint16_t length_header;
-    uint32_t fourcc;
-    uint16_t width;
-    uint16_t height;
-    uint32_t timescale_den;
-    uint32_t timescale_num;
-    uint32_t frame_count;
-    uint32_t unused;
+  uint32_t signature; // FourCC
+  uint16_t version;
+  uint16_t length_header;
+  uint32_t fourcc;
+  uint16_t width;
+  uint16_t height;
+  uint32_t timescale_den;
+  uint32_t timescale_num;
+  uint32_t frame_count;
+  uint32_t unused;
 };
 
-
 class ESEIVFStream : public ESEStream {
-public:  
+  public:
   ESEIVFStream ();
   ~ESEIVFStream ();
 
   virtual void reset ();
 
-protected:
-  ESEBuffer getStartCode() {return {};}
-  ESEResult processToNextFrame();
+  protected:
+  ESEBuffer getStartCode () { return {}; }
+  ESEResult processToNextFrame ();
 
-private:
-  ESEVideoCodec fourccToCodec();
-  void parseOptions(const char* options);
+  private:
+  ESEVideoCodec fourccToCodec ();
+  void          parseOptions (const char *options);
 
   IVFHeader m_header;
-  bool m_headerFound;
-  uint64_t m_lastPts;
+  bool      m_headerFound;
+  uint64_t  m_lastPts;
 };

@@ -25,8 +25,8 @@ const ESEBuffer h264_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x09, 0xF0 };
 const ESEBuffer h265_aud_nalu = { 0x00, 0x00, 0x00, 0x01, 0x46, 0x01, 0x10 };
 
 ESENalu::ESENalu (ESEBuffer buffer, ESENaluCodec codec)
-: m_buffer (buffer),
-m_naluCodec (codec)
+: m_buffer (buffer)
+, m_naluCodec (codec)
 {
 }
 
@@ -73,7 +73,6 @@ ESEH265Nalu::ESEH265Nalu (ESEBuffer buffer)
 {
   parseNalu ();
 }
-
 
 void
 ESEH265Nalu::parseNalu ()

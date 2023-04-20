@@ -33,32 +33,30 @@ typedef enum ESENaluCodec {
   ESE_NALU_CODEC_H265,
 } ESENaluCodec;
 
-typedef enum
-{
-  ESE_H264_NAL_UNKNOWN      = 0,
-  ESE_H264_NAL_SLICE        = 1,
-  ESE_H264_NAL_SLICE_DPA    = 2,
-  ESE_H264_NAL_SLICE_DPB    = 3,
-  ESE_H264_NAL_SLICE_DPC    = 4,
-  ESE_H264_NAL_SLICE_IDR    = 5,
-  ESE_H264_NAL_SEI          = 6,
-  ESE_H264_NAL_SPS          = 7,
-  ESE_H264_NAL_PPS          = 8,
-  ESE_H264_NAL_AUD          = 9,
-  ESE_H264_NAL_SEQ_END      = 10,
-  ESE_H264_NAL_STREAM_END   = 11,
-  ESE_H264_NAL_FILLER_DATA  = 12,
-  ESE_H264_NAL_SPS_EXT      = 13,
-  ESE_H264_NAL_PREFIX_UNIT  = 14,
-  ESE_H264_NAL_SUBSET_SPS   = 15,
-  ESE_H264_NAL_DEPTH_SPS    = 16,
-  ESE_H264_NAL_SLICE_AUX    = 19,
-  ESE_H264_NAL_SLICE_EXT    = 20,
-  ESE_H264_NAL_SLICE_DEPTH  = 21
+typedef enum {
+  ESE_H264_NAL_UNKNOWN     = 0,
+  ESE_H264_NAL_SLICE       = 1,
+  ESE_H264_NAL_SLICE_DPA   = 2,
+  ESE_H264_NAL_SLICE_DPB   = 3,
+  ESE_H264_NAL_SLICE_DPC   = 4,
+  ESE_H264_NAL_SLICE_IDR   = 5,
+  ESE_H264_NAL_SEI         = 6,
+  ESE_H264_NAL_SPS         = 7,
+  ESE_H264_NAL_PPS         = 8,
+  ESE_H264_NAL_AUD         = 9,
+  ESE_H264_NAL_SEQ_END     = 10,
+  ESE_H264_NAL_STREAM_END  = 11,
+  ESE_H264_NAL_FILLER_DATA = 12,
+  ESE_H264_NAL_SPS_EXT     = 13,
+  ESE_H264_NAL_PREFIX_UNIT = 14,
+  ESE_H264_NAL_SUBSET_SPS  = 15,
+  ESE_H264_NAL_DEPTH_SPS   = 16,
+  ESE_H264_NAL_SLICE_AUX   = 19,
+  ESE_H264_NAL_SLICE_EXT   = 20,
+  ESE_H264_NAL_SLICE_DEPTH = 21
 } ESEH264NalUnitType;
 
-typedef enum
-{
+typedef enum {
   ESE_H265_NAL_SLICE_TRAIL_N    = 0,
   ESE_H265_NAL_SLICE_TRAIL_R    = 1,
   ESE_H265_NAL_SLICE_TSA_N      = 2,
@@ -86,55 +84,53 @@ typedef enum
   ESE_H265_NAL_SUFFIX_SEI       = 40
 } ESEH265NalUnitType;
 
-class ESENalu{
-public:
-  ESENalu(ESEBuffer  buffer, ESENaluCodec codec);
-  virtual ~ESENalu() {}
+class ESENalu {
+  public:
+  ESENalu (ESEBuffer buffer, ESENaluCodec codec);
+  virtual ~ESENalu () {}
 
-  int naluType() {return m_naluType;};
-  ESENaluCodec naluCodec() {return  m_naluCodec;}
-  ESENaluCategory naluCategory() {return m_naluCategory;};
+  int             naluType () { return m_naluType; };
+  ESENaluCodec    naluCodec () { return m_naluCodec; }
+  ESENaluCategory naluCategory () { return m_naluCategory; };
 
-protected:
-  virtual void parseNalu() = 0;
-  int                         m_naluType;
-  ESEBuffer   m_buffer;
-  ESENaluCodec               m_naluCodec;
-  ESENaluCategory            m_naluCategory;
-
+  protected:
+  virtual void    parseNalu () = 0;
+  int             m_naluType;
+  ESEBuffer       m_buffer;
+  ESENaluCodec    m_naluCodec;
+  ESENaluCategory m_naluCategory;
 };
 
-class ESEH264Nalu : public ESENalu{
-public:
-  ESEH264Nalu(ESEBuffer  buffer);
-  virtual ~ESEH264Nalu(){}
+class ESEH264Nalu : public ESENalu {
+  public:
+  ESEH264Nalu (ESEBuffer buffer);
+  virtual ~ESEH264Nalu () {}
 
-protected:
-
-  virtual void parseNalu() override;
-
+  protected:
+  virtual void parseNalu () override;
 };
 
 class ESEH265Nalu : public ESENalu {
-public:
-  ESEH265Nalu(ESEBuffer  buffer);
-  virtual ~ESEH265Nalu(){}
+  public:
+  ESEH265Nalu (ESEBuffer buffer);
+  virtual ~ESEH265Nalu () {}
 
-
-protected:
-
-  virtual void parseNalu() override;
-
+  protected:
+  virtual void parseNalu () override;
 };
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-bool ese_is_aud_nalu (ESEBuffer  buffer, ESENaluCodec codec);
-bool ese_is_new_frame (ESEBuffer  buffer, ESENaluCodec codec);
-ESENaluCategory ese_nalu_get_category (ESEBuffer buffer, ESENaluCodec codec);
-const ESEBuffer & ese_aud_nalu (ESENaluCodec codec);
+bool
+ese_is_aud_nalu (ESEBuffer buffer, ESENaluCodec codec);
+bool
+ese_is_new_frame (ESEBuffer buffer, ESENaluCodec codec);
+ESENaluCategory
+ese_nalu_get_category (ESEBuffer buffer, ESENaluCodec codec);
+const ESEBuffer &
+ese_aud_nalu (ESENaluCodec codec);
 #ifdef __cplusplus
 }
 #endif
