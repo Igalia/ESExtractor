@@ -20,66 +20,65 @@
 #include "esereader.h"
 #include "esextractor.h"
 
-#include <vector>
 #include <cstring>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
-#define ESE_MAKE_FOURCC(a,b,c,d) \
-  ( (uint32_t)(a) | ((uint32_t) (b)) << 8  | ((uint32_t) (c)) << 16 | ((uint32_t) (d)) << 24 )
+#define ESE_MAKE_FOURCC(a, b, c, d) \
+  ((uint32_t)(a) | ((uint32_t)(b)) << 8 | ((uint32_t)(c)) << 16 | ((uint32_t)(d)) << 24)
 
 #define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 
-ESEVideoFormat ese_stream_probe_video_format (const char* uri);
+ESEVideoFormat
+ese_stream_probe_video_format (const char *uri);
 
 class ESEStream {
-public:
+  public:
   ESEStream (ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN);
   virtual ~ESEStream ();
 
-  virtual void reset();
+  virtual void reset ();
 
-  bool prepare (const char* uri, const char* options = nullptr);
-  void setOptions (const char *options);
-  virtual void parseOptions(const char* options);
+  bool         prepare (const char *uri, const char *options = nullptr);
+  void         setOptions (const char *options);
+  virtual void parseOptions (const char *options);
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
-  virtual ESEResult processToNextFrame() {return ESE_RESULT_NO_PACKET;};
-  
+  virtual ESEResult processToNextFrame () { return ESE_RESULT_NO_PACKET; };
+
   int32_t scanMPEGHeader (ESEBuffer buffer, int32_t pos = 0);
   int32_t probeH26x ();
   int32_t probeIVF ();
-  bool isH264 (ESEBuffer buffer);
-  bool isH265 (ESEBuffer buffer);
+  bool    isH264 (ESEBuffer buffer);
+  bool    isH265 (ESEBuffer buffer);
 
-  ESEVideoCodec codec() { return m_codec;}
-  ESEVideoFormat format() { return m_format;}
-  ESEBuffer * currentFrame() { return &m_currentFrame;}
-  ESEPacket*                  currentPacket();
+  ESEVideoCodec  codec () { return m_codec; }
+  ESEVideoFormat format () { return m_format; }
+  ESEBuffer     *currentFrame () { return &m_currentFrame; }
+  ESEPacket     *currentPacket ();
 
   /// @brief Returns the frame count.
   /// @return
-  int frameCount() { return m_frameCount;}
+  int frameCount () { return m_frameCount; }
 
-protected:
-  ESEReader                   m_reader;
+  protected:
+  ESEReader m_reader;
 
-  virtual ESEBuffer  getStartCode() {return {};}
+  virtual ESEBuffer getStartCode () { return {}; }
 
   // Prepare the next frame available from the given buffer at given position.
-  ESEBuffer  prepareFrame(ESEBuffer  buffer, uint32_t start, uint32_t end);
-  ESEPacket* prepareNextPacket (uint64_t pts = 0, uint64_t dts = 0, uint64_t duration = 0);
+  ESEBuffer  prepareFrame (ESEBuffer buffer, uint32_t start, uint32_t end);
+  ESEPacket *prepareNextPacket (uint64_t pts = 0, uint64_t dts = 0, uint64_t duration = 0);
 
-  ESEVideoCodec                       m_codec;
-  ESEVideoFormat                      m_format;
-  std::map<std::string, std::string>  m_options;
-  
-  bool                                m_eos;
-  ESEBuffer                           m_buffer;
-  uint32_t                            m_bufferPosition;
-
-  ESEBuffer                           m_currentFrame;
-  uint32_t                            m_frameCount;
-  ESEPacket*                          m_currentPacket;
-  ESEPacket*                          m_nextPacket;
+  ESEVideoCodec                      m_codec;
+  ESEVideoFormat                     m_format;
+  std::map<std::string, std::string> m_options;
+  bool                               m_eos;
+  ESEBuffer                          m_buffer;
+  uint32_t                           m_bufferPosition;
+  ESEBuffer                          m_currentFrame;
+  uint32_t                           m_frameCount;
+  ESEPacket                         *m_currentPacket;
+  ESEPacket                         *m_nextPacket;
 };
