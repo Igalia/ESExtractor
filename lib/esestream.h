@@ -17,18 +17,17 @@
 
 #pragma once
 
-#include "esereader.h"
-#include "esextractor.h"
-
 #include <cstring>
 #include <map>
 #include <string>
 #include <vector>
+#include <memory>
+
+#include "esereader.h"
+#include "esextractor.h"
 
 #define ESE_MAKE_FOURCC(a, b, c, d) \
   ((uint32_t)(a) | ((uint32_t)(b)) << 8 | ((uint32_t)(c)) << 16 | ((uint32_t)(d)) << 24)
-
-#define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 
 ESEVideoFormat
 ese_stream_probe_video_format (const char *uri);
@@ -63,7 +62,7 @@ class ESEStream {
   int frameCount () { return m_frameCount; }
 
   protected:
-  ESEReader m_reader;
+  std::unique_ptr<ESEReader> m_reader;
 
   virtual ESEBuffer getStartCode () { return {}; }
 

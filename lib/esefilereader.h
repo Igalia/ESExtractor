@@ -15,24 +15,32 @@
  * permissions and limitations under the License.
  */
 
-#include "eselogger.h"
-#include "esereader.h"
+#pragma once
+
+#include <cstdint>
+#include <fstream>
+#include <iostream>
+#include <istream>
+#include <string>
+#include <vector>
+
 #include "eseutils.h"
+#include "esereader.h"
 
-ESEReader::ESEReader ()
-{
-  reset ();
-}
 
-ESEReader::~ESEReader ()
-{
-}
+class ESEFileReader : public ESEReader {
+  public:
+  ESEFileReader (const char *fileName);
 
-void
-ESEReader::reset (bool full)
-{
-  m_streamPosition = 0;
-  m_bufferSize     = 0;
-  m_readSize       = 0;
-  m_buffer         = ESEBuffer ();
-}
+  virtual bool prepare ();
+
+  virtual ESEBuffer getBuffer (uint32_t size);
+  virtual int32_t   streamSize () { return m_fileSize; }
+
+  private:
+  uint32_t readFile (int32_t data_size, int32_t pos = 0, bool append = false);
+
+  std::ifstream m_file;
+  std::string   m_fileName;
+  int32_t       m_fileSize;
+};

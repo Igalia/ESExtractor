@@ -17,6 +17,9 @@
 
 #pragma once
 
+#include <vector>
+#include <cstdint>
+
 #if (__cplusplus < 201402L)
 #  include <memory>
 template<class T, class... Args>
@@ -41,3 +44,15 @@ make_unique (Args &&...args)
     ERR ("Check '%s' fails", #expr); \
     return;                          \
   }
+
+#define ESEBuffer std::vector<unsigned char>
+
+template<typename T> static inline std::vector<T>
+subVector (std::vector<T> const &v, int pos, int size)
+{
+  auto first = v.cbegin () + pos;
+  auto last  = v.cbegin () + pos + size;
+
+  std::vector<T> vec (first, last);
+  return vec;
+}

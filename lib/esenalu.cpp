@@ -16,7 +16,7 @@
  */
 
 #include "esenalu.h"
-#include "esestream.h"
+#include "eseutils.h"
 
 const int NAL_UNIT_TYPE_MASK = 0x1F;
 
