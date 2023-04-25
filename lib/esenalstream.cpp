@@ -124,9 +124,9 @@ ESENALStream::readStream ()
   }
 
   if (m_bufferPosition >= (uint32_t)m_buffer.size ())
-    m_buffer = m_reader.getBuffer (BUFFER_MAX_PROBE_LENGTH);
+    m_buffer = m_reader->getBuffer (BUFFER_MAX_PROBE_LENGTH);
 
-  while (m_bufferPosition <= (uint32_t)m_buffer.size () || !m_reader.isEOS ()) {
+  while (m_bufferPosition <= (uint32_t)m_buffer.size () || !m_reader->isEOS ()) {
     pos = parseStream (m_bufferPosition);
     if (pos == (int32_t)-1) {
       return ESE_RESULT_NO_PACKET;
@@ -135,7 +135,7 @@ ESENALStream::readStream ()
         m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, pos);
         m_nalCount++;
         DBG ("Found a new frame (%d) of size %zd at pos %d", m_nalCount,
-          m_nextFrame.size (), m_reader.filePosition () + m_frameStartPos);
+          m_nextFrame.size (), m_reader->streamPosition () + m_frameStartPos);
         m_frameStartPos = pos;
         m_bufferPosition = pos;
         m_frameState = ESE_NAL_FRAME_STATE_NONE;
@@ -143,16 +143,16 @@ ESENALStream::readStream ()
       } else {
         m_bufferPosition = pos;
         if (m_bufferPosition >= (uint32_t)m_buffer.size ()) {
-          if (m_reader.isEOS ()) {
+          if (m_reader->isEOS ()) {
             m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, m_buffer.size ());
             m_nalCount++;
             DBG ("Found a last frame (%d) of size %zd at pos %d",
               m_nalCount, m_nextFrame.size (),
-              m_reader.filePosition () + m_frameStartPos);
+              m_reader->streamPosition () + m_frameStartPos);
             m_eos = true;
             return ESE_RESULT_LAST_PACKET;
           } else {
-            ESEBuffer buffer = m_reader.getBuffer (BUFFER_MAX_PROBE_LENGTH);
+            ESEBuffer buffer = m_reader->getBuffer (BUFFER_MAX_PROBE_LENGTH);
             m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
           }
         }

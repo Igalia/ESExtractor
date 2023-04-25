@@ -81,20 +81,20 @@ ESEIVFStream::processToNextFrame ()
   if (m_nextPacket)
     return ESE_RESULT_NEW_PACKET;
 
-  if (m_reader.isEOS ())
+  if (m_reader->isEOS ())
     return ESE_RESULT_EOS;
 
   if (!m_headerFound) {
-    m_buffer = m_reader.getBuffer (sizeof (IVFHeader));
+    m_buffer = m_reader->getBuffer (sizeof (IVFHeader));
     std::memcpy (&m_header, m_buffer.data (), sizeof (IVFHeader));
     m_headerFound = true;
     m_codec = fourccToCodec ();
   }
-  m_buffer = m_reader.getBuffer (sizeof (IVFFrameHeader));
+  m_buffer = m_reader->getBuffer (sizeof (IVFFrameHeader));
 
   std::memcpy (&frame_header, m_buffer.data (), sizeof (IVFFrameHeader));
 
-  m_buffer = m_reader.getBuffer (frame_header.frame_size);
+  m_buffer = m_reader->getBuffer (frame_header.frame_size);
   m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
   prepareNextPacket (frame_header.timestamp, frame_header.timestamp,
@@ -102,7 +102,7 @@ ESEIVFStream::processToNextFrame ()
 
   m_lastPts = frame_header.timestamp;
 
-  if (m_reader.isEOS ())
+  if (m_reader->isEOS ())
     res = ESE_RESULT_LAST_PACKET;
 
   DBG ("Found a new IVF frame (%d) of size %zd", m_frameCount,

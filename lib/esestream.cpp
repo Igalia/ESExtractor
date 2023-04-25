@@ -15,11 +15,12 @@
  * permissions and limitations under the License.
  */
 
+#include "esefilereader.h"
 #include "esestream.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
+#include "eseutils.h"
 
-#define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 #define MPEG_HEADER_SIZE 3
 #define MAX_SEARCH_SIZE 5
 
@@ -49,8 +50,8 @@ ESEStream::ESEStream (ESEVideoFormat format)
 
 ESEStream::~ESEStream ()
 {
-  DBG ("Found %u frame and read %d of %d", m_frameCount, m_reader.readSize (),
-    m_reader.fileSize ());
+  DBG ("Found %u frame and read %d of %d", m_frameCount, m_reader->readSize (),
+    m_reader->streamSize ());
 }
 
 void
@@ -66,14 +67,16 @@ ESEStream::reset ()
   m_codec = ESE_VIDEO_CODEC_UNKNOWN;
   m_buffer = ESEBuffer ();
   m_currentFrame = ESEBuffer ();
-  m_reader.reset ();
+  if (m_reader)
+    m_reader->reset ();
 }
 
 bool
 ESEStream::prepare (const char *uri, const char *options)
 {
   parseOptions (options);
-  if (!m_reader.openFile (uri))
+  m_reader = make_unique<ESEFileReader>(uri);
+  if (!m_reader->prepare ())
     return false;
   return (processToNextFrame () <= ESE_RESULT_ERROR);
 }
@@ -213,8 +216,8 @@ int32_t
 ESEStream::probeH26x ()
 {
   int32_t offset;
-  m_reader.reset ();
-  m_buffer = m_reader.getBuffer (BUFFER_MAX_PROBE_LENGTH);
+  m_reader->reset ();
+  m_buffer = m_reader->getBuffer (BUFFER_MAX_PROBE_LENGTH);
 
   offset = scanMPEGHeader (m_buffer, 0);
   if (offset > 0) {
@@ -231,8 +234,8 @@ int32_t
 ESEStream::probeIVF ()
 {
   IVFHeader ivf_header;
-  m_reader.reset ();
-  m_buffer = m_reader.getBuffer (sizeof (IVFHeader));
+  m_reader->reset ();
+  m_buffer = m_reader->getBuffer (sizeof (IVFHeader));
   std::memcpy (&ivf_header, m_buffer.data (), sizeof (IVFHeader));
   if (ivf_header.signature == ESE_MAKE_FOURCC ('D', 'K', 'I', 'F'))
     return 0;
