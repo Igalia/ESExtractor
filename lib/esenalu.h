@@ -87,7 +87,7 @@ typedef enum {
 class ESENalu {
   public:
   ESENalu (ESEBuffer buffer, ESENaluCodec codec);
-  virtual ~ESENalu () {}
+  virtual ~ESENalu () { }
 
   int             naluType () { return m_naluType; };
   ESENaluCodec    naluCodec () { return m_naluCodec; }
@@ -104,7 +104,7 @@ class ESENalu {
 class ESEH264Nalu : public ESENalu {
   public:
   ESEH264Nalu (ESEBuffer buffer);
-  virtual ~ESEH264Nalu () {}
+  virtual ~ESEH264Nalu () { }
 
   protected:
   virtual void parseNalu () override;
@@ -113,7 +113,7 @@ class ESEH264Nalu : public ESENalu {
 class ESEH265Nalu : public ESENalu {
   public:
   ESEH265Nalu (ESEBuffer buffer);
-  virtual ~ESEH265Nalu () {}
+  virtual ~ESEH265Nalu () { }
 
   protected:
   virtual void parseNalu () override;

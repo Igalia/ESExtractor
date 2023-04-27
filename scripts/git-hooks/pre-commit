@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# Run clang-format on all modified .cpp and .h files
+# Need to copy .clang-format in /tmp/ as the file needs to
+# be in the same folder as temporary ones.
+REPO_DIR=$( git rev-parse --show-toplevel )
+cp $REPO_DIR/.clang-format /tmp/
+for file in `git diff-index --cached --name-only HEAD --diff-filter=ACMR| grep -E '\.(cpp|h)$'` ; do
+    echo "$file"
+    nf=`git checkout-index --temp ${file} | cut -f 1`
+    newfile=`mktemp /tmp/${nf}.XXXXXX` || exit 1
+    cp $nf $newfile
+    clang-format -i $newfile
+    diff -u -p "${nf}" "${newfile}"
+    r=$?
+    rm "${newfile}"
+    rm "${nf}"
+    if [ $r != 0 ] ; then
+        ERROR_FILES="$ERROR_FILES $file"
+        echo "================================================================================================="
+        echo " Code style error in: $file                                                                      "
+        echo "================================================================================================="
+        echo ""
+    fi
+done
+# Do not forget to remove the .clang-format
+rm /tmp/.clang-format
+
+if [ -n "$ERROR_FILES" ];then
+    echo "================================================================================================="
+    echo " Code style error in:                                                                            "
+    for file in $ERROR_FILES ; do
+        echo "   $file"
+    done
+    echo "                                                                                                 "
+    echo " Please fix before committing. Don't forget to run git add before trying to commit again.        "
+    echo " If the whole file is to be committed, this should work (run from the top-level directory):      "
+    echo "   clang-format -i$ERROR_FILES ; git add$ERROR_FILES ; git commit"
+    echo "                                                                                                 "
+    echo "================================================================================================="
+    exit 1
+fi
