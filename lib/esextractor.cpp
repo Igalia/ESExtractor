@@ -14,14 +14,13 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
+#include <cassert>
 
-#include "esextractor.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
 #include "esenalstream.h"
 #include "eseutils.h"
-
-#include <cassert>
+#include "esextractor.h"
 
 struct ESExtractor {
 
@@ -74,7 +73,12 @@ struct ESExtractor {
 
   bool prepare (const char *uri, const char *options)
   {
-    ESEVideoFormat format = ese_stream_probe_video_format (uri);
+    ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN;
+
+    m_stream = make_unique<ESEStream> ();
+    if (m_stream->prepare (uri, options))
+      format = ese_stream_probe_video_format (m_stream.get ());
+
     m_stream = nullptr;
     if (format == ESE_VIDEO_FORMAT_NAL) {
       m_stream = make_unique<ESENALStream> ();
@@ -82,6 +86,25 @@ struct ESExtractor {
       m_stream = make_unique<ESEIVFStream> ();
     }
     if (m_stream && m_stream->prepare (uri, options)) {
+      return (m_stream->processToNextFrame () <= ESE_RESULT_ERROR);
+    }
+    return false;
+  }
+
+  bool prepare_data (ese_read_buffer_func func, void *data, const char *options)
+  {
+    ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN;
+
+    m_stream = make_unique<ESEStream> ();
+    if (m_stream->prepare (func, data, options))
+      format = ese_stream_probe_video_format (m_stream.get ());
+    m_stream = nullptr;
+    if (format == ESE_VIDEO_FORMAT_NAL) {
+      m_stream = make_unique<ESENALStream> ();
+    } else if (format == ESE_VIDEO_FORMAT_IVF) {
+      m_stream = make_unique<ESEIVFStream> ();
+    }
+    if (m_stream && m_stream->prepare (func, data, options)) {
       return (m_stream->processToNextFrame () <= ESE_RESULT_ERROR);
     }
     return false;
@@ -109,6 +132,18 @@ es_extractor_new (const char *uri, const char *options)
   return NULL;
 }
 
+ESExtractor *
+es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, const char *options)
+{
+  ESExtractor *extractor = new ESExtractor ();
+  if (extractor->prepare_data (func, data, options)) {
+    return extractor;
+  }
+
+  es_extractor_teardown (extractor);
+  return NULL;
+}
+
 void
 es_extractor_set_options (ESExtractor *extractor, const char *options)
 {
@@ -120,8 +155,7 @@ ESEResult
 es_extractor_read_packet (ESExtractor *extractor, ESEPacket **packet)
 {
   ESE_CHECK (extractor != NULL, ESE_RESULT_ERROR);
-  ESEResult res = ESE_RESULT_NEW_PACKET;
-  res = extractor->processToNextPacket ();
+  ESEResult res = extractor->processToNextPacket ();
   if (res < ESE_RESULT_EOS)
     *packet = extractor->currentPacket ();
   else

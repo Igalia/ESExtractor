@@ -17,10 +17,9 @@
 
 #pragma once
 
-
-
 #include "eselogger.h"
 #include "eseutils.h"
+#include "esextractor.h"
 
 #define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
 

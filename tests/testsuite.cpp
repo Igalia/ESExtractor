@@ -59,8 +59,11 @@ main (int argc, char *argv[])
 {
   int log_level = ES_LOG_LEVEL_INFO;
 
+  // NAL tests
   check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.avc", log_level, ESE_VIDEO_CODEC_H264, "h264", 22, 10);
   check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.hevc", log_level, ESE_VIDEO_CODEC_H265, "h265", 23, 10);
+  // Parse with data provider
+  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.avc", nullptr, log_level) == 22);
 
   // IVF tests
   check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30);
