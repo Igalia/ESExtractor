@@ -129,8 +129,8 @@ getNalu (ESEBuffer buffer, ESENaluCodec codec)
 ESENaluCategory
 ese_nalu_get_category (ESEBuffer buffer, ESENaluCodec codec)
 {
-  ESENaluCategory cat = ESE_NALU_CATEGORY_UNKNOWN;
-  ESENalu *nalu = getNalu (buffer, codec);
+  ESENaluCategory cat  = ESE_NALU_CATEGORY_UNKNOWN;
+  ESENalu        *nalu = getNalu (buffer, codec);
   if (nalu) {
     cat = nalu->naluCategory ();
     delete nalu;

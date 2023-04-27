@@ -24,7 +24,7 @@ subdir('tests')
 clang_format = find_program('clang-format', required: false)
 # Install clang-format pre-commit hook
 if clang_format.found()
-  run_command(python3, '-c', 'import shutil; shutil.copy("scripts/git-hooks/multi-pre-commit.hook", ".git/hooks/pre-commit")', check: false)
+  run_command(python3, '-c', 'import shutil; shutil.copy("scripts/git-hooks/pre-commit", ".git/hooks/pre-commit")', check: false)
 else
   message('clang-format not found, please install it with your package manager to enable the commit message hook')
 endif

@@ -1,6 +1,7 @@
 ---
 BasedOnStyle:  WebKit
-
+AlignConsecutiveDeclarations: true
+AlignConsecutiveAssignments: true
 AlwaysBreakAfterReturnType: TopLevel
 ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 2
