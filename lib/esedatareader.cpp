@@ -1,5 +1,5 @@
 /* ESExtractor
- * Copyright (C) 2022 Igalia, S.L.
+ * Copyright (C) 2023 Igalia, S.L.
  *     Author: Stephane Cerveau <scerveau@igalia.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
@@ -15,24 +15,37 @@
  * permissions and limitations under the License.
  */
 
-#include "esereader.h"
-#include "eselogger.h"
-#include "eseutils.h"
+#include "esedatareader.h"
 
-ESEReader::ESEReader ()
+ESEDataReader::ESEDataReader (ese_read_buffer_func read_func, void *pointer)
 {
+  m_readFunc    = read_func;
+  m_dataPointer = pointer;
   reset ();
 }
 
-ESEReader::~ESEReader ()
+ESEDataReader::~ESEDataReader ()
 {
 }
 
-void
-ESEReader::reset (bool full)
+bool
+ESEDataReader::prepare ()
 {
-  m_streamPosition = 0;
-  m_bufferSize     = 0;
-  m_readSize       = 0;
-  m_buffer         = ESEBuffer ();
+  return true;
+}
+
+ESEBuffer
+ESEDataReader::getBuffer (uint32_t size)
+{
+  ESEBuffer buffer;
+
+  if (!m_readFunc)
+    return ESEBuffer ();
+
+  buffer.resize (size);
+  uint32_t read_size = m_readFunc (m_dataPointer, buffer.data (), size, m_streamPosition);
+  if (read_size < size)
+    buffer.resize (read_size);
+
+  return buffer;
 }

@@ -15,8 +15,9 @@
  * permissions and limitations under the License.
  */
 
-#include "esefilereader.h"
 #include "esestream.h"
+#include "esedatareader.h"
+#include "esefilereader.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
 #include "eseutils.h"
@@ -25,17 +26,15 @@
 #define MAX_SEARCH_SIZE 5
 
 ESEVideoFormat
-ese_stream_probe_video_format (const char *uri)
+ese_stream_probe_video_format (ESEStream *stream)
 {
   ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN;
-  ESEStream stream;
-  ESEBuffer buffer;
-  if (stream.prepare (uri)) {
-    if (stream.probeIVF () != -1)
-      format = ESE_VIDEO_FORMAT_IVF;
-    else if (stream.probeH26x () != -1)
-      format = ESE_VIDEO_FORMAT_NAL;
-  }
+
+  if (stream->probeIVF () != -1)
+    format = ESE_VIDEO_FORMAT_IVF;
+  else if (stream->probeH26x () != -1)
+    format = ESE_VIDEO_FORMAT_NAL;
+
   DBG ("Found a format %d", format);
   return format;
 }
@@ -57,15 +56,15 @@ ESEStream::~ESEStream ()
 void
 ESEStream::reset ()
 {
-  m_eos = false;
+  m_eos            = false;
   m_bufferPosition = 0;
-  m_frameCount = 0;
-  m_currentPacket = nullptr;
+  m_frameCount     = 0;
+  m_currentPacket  = nullptr;
   if (m_nextPacket)
     delete m_nextPacket;
-  m_nextPacket = nullptr;
-  m_codec = ESE_VIDEO_CODEC_UNKNOWN;
-  m_buffer = ESEBuffer ();
+  m_nextPacket   = nullptr;
+  m_codec        = ESE_VIDEO_CODEC_UNKNOWN;
+  m_buffer       = ESEBuffer ();
   m_currentFrame = ESEBuffer ();
   if (m_reader)
     m_reader->reset ();
@@ -75,7 +74,17 @@ bool
 ESEStream::prepare (const char *uri, const char *options)
 {
   parseOptions (options);
-  m_reader = make_unique<ESEFileReader>(uri);
+  m_reader = make_unique<ESEFileReader> (uri);
+  if (!m_reader->prepare ())
+    return false;
+  return (processToNextFrame () <= ESE_RESULT_ERROR);
+}
+
+bool
+ESEStream::prepare (ese_read_buffer_func read_func, void *pointer, const char *options)
+{
+  parseOptions (options);
+  m_reader = make_unique<ESEDataReader> (read_func, pointer);
   if (!m_reader->prepare ())
     return false;
   return (processToNextFrame () <= ESE_RESULT_ERROR);
@@ -110,13 +119,13 @@ ESEStream::prepareFrame (ESEBuffer buffer, uint32_t start,
 ESEPacket *
 ESEStream::prepareNextPacket (uint64_t pts, uint64_t dts, uint64_t duration)
 {
-  m_nextPacket = new ESEPacket ();
+  m_nextPacket       = new ESEPacket ();
   m_nextPacket->data = static_cast<std::uint8_t *> (std::malloc (m_currentFrame.size ()));
   std::memcpy (m_nextPacket->data, m_currentFrame.data (), m_currentFrame.size ());
   m_nextPacket->data_size = m_currentFrame.size ();
-  m_nextPacket->pts = pts;
-  m_nextPacket->dts = dts;
-  m_nextPacket->duration = duration;
+  m_nextPacket->pts       = pts;
+  m_nextPacket->dts       = dts;
+  m_nextPacket->duration  = duration;
   m_frameCount++;
   return m_nextPacket;
 }
@@ -125,7 +134,7 @@ ESEPacket *
 ESEStream::currentPacket ()
 {
   m_currentPacket = m_nextPacket;
-  m_nextPacket = nullptr;
+  m_nextPacket    = nullptr;
   return m_currentPacket;
 }
 
@@ -144,7 +153,7 @@ ESEStream::scanMPEGHeader (ESEBuffer buffer, int32_t pos)
 bool
 ESEStream::isH265 (ESEBuffer buffer)
 {
-  int nut;
+  int  nut;
   bool found = false;
 
   if (buffer.size () < MAX_SEARCH_SIZE)
@@ -178,7 +187,7 @@ ESEStream::isH265 (ESEBuffer buffer)
 bool
 ESEStream::isH264 (ESEBuffer buffer)
 {
-  int nut, ref;
+  int  nut, ref;
   bool found = false;
 
   if (buffer.size () < MAX_SEARCH_SIZE)
@@ -251,8 +260,8 @@ ESEStream::parseOptions (const char *options)
   token = strtok ((char *)options, "\n");
   while (token != NULL) {
     std::string s (token);
-    size_t pos = s.find (":");
+    size_t      pos              = s.find (":");
     m_options[s.substr (0, pos)] = s.substr (pos + 1, std::string::npos);
-    token = strtok (NULL, "\n");
+    token                        = strtok (NULL, "\n");
   }
 }

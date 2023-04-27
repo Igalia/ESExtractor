@@ -36,14 +36,14 @@ ESENALStream::~ESENALStream ()
 void
 ESENALStream::reset ()
 {
-  m_frameState = ESE_NAL_FRAME_STATE_NONE;
-  m_frameStartPos = 0;
-  m_nalCount = false;
-  m_mpegDetected = false;
+  m_frameState     = ESE_NAL_FRAME_STATE_NONE;
+  m_frameStartPos  = 0;
+  m_nalCount       = false;
+  m_mpegDetected   = false;
   m_audNalDetected = false;
-  m_alignment = ESE_PACKET_ALIGNMENT_NAL;
-  m_nextNAL = ESEBuffer ();
-  m_nextFrame = ESEBuffer ();
+  m_alignment      = ESE_PACKET_ALIGNMENT_NAL;
+  m_nextNAL        = ESEBuffer ();
+  m_nextFrame      = ESEBuffer ();
   ESEStream::reset ();
 }
 
@@ -73,7 +73,7 @@ ESENALStream::parseOptions (const char *options)
 int32_t
 ESENALStream::parseStream (int32_t start_position)
 {
-  int32_t pos = start_position;
+  int32_t pos         = start_position;
   int32_t buffer_size = m_buffer.size ();
 
   while (pos < buffer_size) {
@@ -82,8 +82,8 @@ ESENALStream::parseStream (int32_t start_position)
       if (pos > 0) {
         /* start code might have 2 or 3 0-bytes */
         m_frameStartPos = pos;
-        m_frameState = ESE_NAL_FRAME_STATE_START;
-        m_mpegDetected = true;
+        m_frameState    = ESE_NAL_FRAME_STATE_START;
+        m_mpegDetected  = true;
       } else {
         ERR ("Unable to find any start code in buffer size %d. Exit.",
           buffer_size);
@@ -136,9 +136,9 @@ ESENALStream::readStream ()
         m_nalCount++;
         DBG ("Found a new frame (%d) of size %zd at pos %d", m_nalCount,
           m_nextFrame.size (), m_reader->streamPosition () + m_frameStartPos);
-        m_frameStartPos = pos;
+        m_frameStartPos  = pos;
         m_bufferPosition = pos;
-        m_frameState = ESE_NAL_FRAME_STATE_NONE;
+        m_frameState     = ESE_NAL_FRAME_STATE_NONE;
         return ESE_RESULT_NEW_PACKET;
       } else {
         m_bufferPosition = pos;

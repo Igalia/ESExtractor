@@ -20,6 +20,11 @@
 #include "eselogger.h"
 #include "esextractor.h"
 
-ESExtractor* create_es_extractor (const char *fileName, const char* options, uint8_t debug_level);
-int parse (ESExtractor* extractor);
-int parse_file (const char *fileName, const char* options, uint8_t debug_level);
+ESExtractor *
+create_es_extractor (const char *fileName, const char *options, uint8_t debug_level);
+int
+parse (ESExtractor *extractor);
+int
+parse_file (const char *fileName, const char *options, uint8_t debug_level);
+int
+parse_data (const char *fileName, const char *options, uint8_t debug_level);

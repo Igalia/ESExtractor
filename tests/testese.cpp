@@ -17,9 +17,11 @@
 
 #include <algorithm>
 #include <cassert>
-#include <fstream>
+#include <cstring>
 
+#include "esefilereader.h"
 #include "eselogger.h"
+#include "eseutils.h"
 #include "esextractor.h"
 
 static void
@@ -50,9 +52,9 @@ create_es_extractor (const char *fileName, const char *options, uint8_t debug_le
 int
 parse (ESExtractor *esextractor)
 {
-  ESEResult res;
+  ESEResult  res;
   ESEPacket *pkt;
-  int packet_count;
+  int        packet_count;
 
   while ((res = es_extractor_read_packet (esextractor,
             &pkt))
@@ -77,5 +79,116 @@ parse_file (const char *fileName, const char *options, uint8_t debug_level)
   }
   int packet_count = parse (esextractor);
   es_extractor_teardown (esextractor);
+  return packet_count;
+}
+
+class DataProvider {
+  public:
+  DataProvider (const char *uri)
+  : m_streamSize (0)
+  {
+    m_file = std::ifstream (uri, std::ios::binary | std::ios::ate);
+    reset ();
+  }
+  ~DataProvider () { }
+
+  void reset ()
+  {
+    m_streamPosition = 0;
+    m_readSize       = 0;
+    m_buffer         = ESEBuffer ();
+  }
+
+  uint32_t readFile (int32_t data_size, int32_t pos, bool append)
+  {
+    ESEBuffer buffer;
+    size_t    read_size;
+    if (!m_streamSize)
+      m_streamSize = m_file.tellg ();
+    if (!m_streamSize) {
+      ERR ("The file is empty. Exit.");
+      return 0;
+    }
+
+    DBG ("Read %d at pos %d append %d from file size %d", data_size, pos, append,
+      m_streamSize);
+    m_file.clear ();
+    m_file.seekg (pos, m_file.beg);
+    m_streamPosition = pos;
+
+    buffer.resize (data_size);
+    m_file.read ((char *)buffer.data (), data_size);
+    read_size = m_file.gcount ();
+    buffer.resize (read_size);
+    m_readSize += read_size;
+    m_streamPosition += read_size;
+    if (append) {
+      m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
+      DBG ("ReadFile: Append %d to a buffer of new size %zd read %zd", data_size,
+        m_buffer.size (), read_size);
+    } else {
+      m_buffer = buffer;
+      DBG ("ReadFile: Read buffer %d of size read %zd", data_size, read_size);
+    }
+    return read_size;
+  }
+
+  ESEBuffer getBuffer (uint32_t size)
+  {
+    uint32_t  real_size = size;
+    ESEBuffer buffer;
+
+    while (m_buffer.size () < size) {
+      if (readFile (BUFFER_MAX_PROBE_LENGTH, m_streamPosition,
+            true)
+        < BUFFER_MAX_PROBE_LENGTH)
+        break;
+    }
+    if (m_buffer.size () < size)
+      real_size = m_buffer.size ();
+
+    buffer = subVector (m_buffer, 0, real_size);
+    m_buffer.erase (m_buffer.begin (), m_buffer.begin () + real_size);
+    return buffer;
+  }
+  uint32_t getData (uint8_t *buffer, uint32_t size, int32_t offset)
+  {
+    if (!offset)
+      reset ();
+    m_buffer = getBuffer (size);
+    std::memcpy (buffer, m_buffer.data (), m_buffer.size ());
+    return m_buffer.size ();
+  }
+
+  std::ifstream m_file;
+  int32_t       m_streamPosition;
+  int32_t       m_streamSize;
+  int32_t       m_readSize;
+  ESEBuffer     m_buffer;
+};
+
+static int
+ReadBuffer (void *opaque, unsigned char *pBuf, int size, int32_t offset)
+{
+  int read_size = ((DataProvider *)opaque)->getData (pBuf, size, offset);
+  DBG ("ReadBuf read_size=%d size=%d", read_size, size);
+  return read_size;
+}
+
+int
+parse_data (const char *fileName, const char *options, uint8_t debug_level)
+{
+  es_extractor_set_log_level (debug_level);
+  INFO ("Extracting packets from %s with options %s", fileName, options);
+  std::unique_ptr<DataProvider> pDataProvider = make_unique<DataProvider> (fileName);
+
+  ESExtractor *esextractor = es_extractor_new_with_read_func (&ReadBuffer, pDataProvider.get (), options);
+  if (!esextractor) {
+    ERR ("Unable to discover a compatible stream. Exit");
+    return -1;
+  }
+  int packet_count = parse (esextractor);
+  es_extractor_teardown (esextractor);
+
   return packet_count;
 }

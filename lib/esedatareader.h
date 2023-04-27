@@ -15,24 +15,21 @@
  * permissions and limitations under the License.
  */
 
+#pragma once
+
 #include "esereader.h"
-#include "eselogger.h"
 #include "eseutils.h"
+#include "esextractor.h"
 
-ESEReader::ESEReader ()
-{
-  reset ();
-}
+class ESEDataReader : public ESEReader {
+  public:
+  ESEDataReader (ese_read_buffer_func read_func, void *pointer);
+  ~ESEDataReader ();
 
-ESEReader::~ESEReader ()
-{
-}
+  bool              prepare ();
+  virtual ESEBuffer getBuffer (uint32_t size);
 
-void
-ESEReader::reset (bool full)
-{
-  m_streamPosition = 0;
-  m_bufferSize     = 0;
-  m_readSize       = 0;
-  m_buffer         = ESEBuffer ();
-}
+  private:
+  ese_read_buffer_func m_readFunc;
+  void                *m_dataPointer;
+};

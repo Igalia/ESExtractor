@@ -24,9 +24,8 @@
 #include <string>
 #include <vector>
 
-#include "eseutils.h"
 #include "esereader.h"
-
+#include "eseutils.h"
 
 class ESEFileReader : public ESEReader {
   public:

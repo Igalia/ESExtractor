@@ -19,6 +19,9 @@
 
 #include <cstdint>
 
+typedef int32_t (*ese_read_buffer_func) (void *opaque, unsigned char *buffer, int32_t buffer_size, int32_t offset);
+#define ESEBuffer std::vector<unsigned char>
+
 typedef enum ESEVideoCodec {
   ESE_VIDEO_CODEC_UNKNOWN = 0,
   ESE_VIDEO_CODEC_H264,
@@ -75,6 +78,10 @@ extern "C" {
 ES_EXTRACTOR_API
 ESExtractor *
 es_extractor_new (const char *uri, const char *options);
+
+ES_EXTRACTOR_API
+ESExtractor *
+es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, const char *options);
 
 ES_EXTRACTOR_API
 void

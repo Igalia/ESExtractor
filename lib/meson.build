@@ -2,6 +2,7 @@ esextractor_sources = files(
   'esextractor.cpp',
   'esereader.cpp',
   'esefilereader.cpp',
+  'esedatareader.cpp',
   'esestream.cpp',
   'eseivfstream.cpp',
   'esenalstream.cpp',

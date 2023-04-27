@@ -12,7 +12,7 @@ esextractortestbin = executable(
 esextractortest = executable(
   'testesesuite',
   files('testsuite.cpp', 'testese.cpp'),
-  include_directories : [inc_dirs],
+  include_directories : inc_dirs,
   override_options: _override_options,
   dependencies: [libesextractor_dep]
 )

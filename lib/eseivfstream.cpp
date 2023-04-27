@@ -43,7 +43,7 @@ void
 ESEIVFStream::reset ()
 {
   m_headerFound = false;
-  m_lastPts = 0;
+  m_lastPts     = 0;
   ESEStream::reset ();
 }
 
@@ -75,7 +75,7 @@ ESEIVFStream::fourccToCodec ()
 ESEResult
 ESEIVFStream::processToNextFrame ()
 {
-  ESEResult res = ESE_RESULT_NEW_PACKET;
+  ESEResult      res = ESE_RESULT_NEW_PACKET;
   IVFFrameHeader frame_header;
 
   if (m_nextPacket)
@@ -88,13 +88,13 @@ ESEIVFStream::processToNextFrame ()
     m_buffer = m_reader->getBuffer (sizeof (IVFHeader));
     std::memcpy (&m_header, m_buffer.data (), sizeof (IVFHeader));
     m_headerFound = true;
-    m_codec = fourccToCodec ();
+    m_codec       = fourccToCodec ();
   }
   m_buffer = m_reader->getBuffer (sizeof (IVFFrameHeader));
 
   std::memcpy (&frame_header, m_buffer.data (), sizeof (IVFFrameHeader));
 
-  m_buffer = m_reader->getBuffer (frame_header.frame_size);
+  m_buffer       = m_reader->getBuffer (frame_header.frame_size);
   m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
   prepareNextPacket (frame_header.timestamp, frame_header.timestamp,

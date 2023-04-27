@@ -17,12 +17,12 @@
 
 #pragma once
 
-#include <vector>
 #include <cstdint>
+#include <vector>
 
 #if (__cplusplus < 201402L)
 #  include <memory>
-template<class T, class... Args>
+template <class T, class... Args>
 std::unique_ptr<T>
 make_unique (Args &&...args)
 {
@@ -45,9 +45,8 @@ make_unique (Args &&...args)
     return;                          \
   }
 
-#define ESEBuffer std::vector<unsigned char>
-
-template<typename T> static inline std::vector<T>
+template <typename T>
+static inline std::vector<T>
 subVector (std::vector<T> const &v, int pos, int size)
 {
   auto first = v.cbegin () + pos;
