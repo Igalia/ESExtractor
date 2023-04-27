@@ -85,6 +85,10 @@ ESExtractor *
 es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, ESEVideoFormat format);
 
 ES_EXTRACTOR_API
+ESExtractor *
+es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, const char *options);
+
+ES_EXTRACTOR_API
 void
 es_extractor_set_options (ESExtractor *extractor, ESEVideoFormat format);
 

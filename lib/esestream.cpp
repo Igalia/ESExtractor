@@ -16,10 +16,10 @@
  */
 
 #include "esestream.h"
-#include "eseannexbstream.h"
 #include "esedatareader.h"
 #include "esefilereader.h"
 #include "eseivfstream.h"
+#include "eseannexbstream.h"
 #include "eselogger.h"
 #include "eseutils.h"
 
@@ -82,6 +82,16 @@ ESEStream::prepare (const char *uri, ESEVideoFormat format)
 {
   m_format = format;
   m_reader = make_unique<ESEFileReader> (uri);
+  parseOptions (options);
+  if (!m_reader->prepare ())
+    return false;
+  return (processToNextFrame () <= ESE_RESULT_ERROR);
+}
+
+bool
+ESEStream::prepare (ese_read_buffer_func read_func, void *pointer, ESEVideoFormat format)
+{
+  m_reader = make_unique<ESEDataReader> (read_func, pointer);
   if (!m_reader->prepare ())
     return false;
   return (processToNextFrame () <= ESE_RESULT_ERROR);

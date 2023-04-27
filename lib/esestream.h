@@ -38,6 +38,7 @@ class ESEStream {
 
   bool         prepare (const char *uri, ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN);
   bool         prepare (ese_read_buffer_func func, void *pointer, ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN);
+
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
   virtual ESEResult processToNextFrame () { return ESE_RESULT_NO_PACKET; };
@@ -77,6 +78,7 @@ class ESEStream {
   ESEPacket                         *m_currentPacket;
   ESEPacket                         *m_nextPacket;
 };
+
 
 ESEVideoFormat
 ese_stream_probe_video_format (ESEStream *stream);

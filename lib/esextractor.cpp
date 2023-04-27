@@ -16,6 +16,7 @@
  */
 #include <cassert>
 
+#include "esextractor.h"
 #include "eseannexbstream.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
