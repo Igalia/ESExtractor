@@ -1,3 +1,7 @@
+v0.3.3
+  - Add es_extractor_new_with_read_func api
+  - clean the clang-format as a pre-commit hook
+
 v0.3.2
   - Add more tests to the test suite
   - Add es_extractor_set_options api
