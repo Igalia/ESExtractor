@@ -16,6 +16,7 @@
  */
 
 #include "esestream.h"
+#include "eseannexbstream.h"
 #include "esedatareader.h"
 #include "esefilereader.h"
 #include "eseivfstream.h"
@@ -30,12 +31,18 @@ ese_stream_probe_video_format (ESEStream *stream)
 {
   ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN;
 
-  if (stream->probeIVF () != -1)
+  if (stream->probeIVF () != -1) {
     format = ESE_VIDEO_FORMAT_IVF;
-  else if (stream->probeH26x () != -1)
+  } else if (stream->probeH26x () != -1) {
     format = ESE_VIDEO_FORMAT_NAL;
+  }
 
-  DBG ("Found a format %d", format);
+  if (format != ESE_VIDEO_FORMAT_UNKNOWN) {
+    DBG ("Found a format %d", format);
+  } else {
+    DBG ("No format discovered");
+  }
+
   return format;
 }
 
@@ -71,9 +78,9 @@ ESEStream::reset ()
 }
 
 bool
-ESEStream::prepare (const char *uri, const char *options)
+ESEStream::prepare (const char *uri, ESEVideoFormat format)
 {
-  parseOptions (options);
+  m_format = format;
   m_reader = make_unique<ESEFileReader> (uri);
   if (!m_reader->prepare ())
     return false;
@@ -81,19 +88,13 @@ ESEStream::prepare (const char *uri, const char *options)
 }
 
 bool
-ESEStream::prepare (ese_read_buffer_func read_func, void *pointer, const char *options)
+ESEStream::prepare (ese_read_buffer_func read_func, void *pointer, ESEVideoFormat format)
 {
-  parseOptions (options);
   m_reader = make_unique<ESEDataReader> (read_func, pointer);
+  m_format = format;
   if (!m_reader->prepare ())
     return false;
   return (processToNextFrame () <= ESE_RESULT_ERROR);
-}
-
-void
-ESEStream::setOptions (const char *options)
-{
-  parseOptions (options);
 }
 
 ESEBuffer
@@ -249,19 +250,4 @@ ESEStream::probeIVF ()
   if (ivf_header.signature == ESE_MAKE_FOURCC ('D', 'K', 'I', 'F'))
     return 0;
   return -1;
-}
-
-void
-ESEStream::parseOptions (const char *options)
-{
-  char *token;
-  if (options == nullptr)
-    return;
-  token = strtok ((char *)options, "\n");
-  while (token != NULL) {
-    std::string s (token);
-    size_t      pos              = s.find (":");
-    m_options[s.substr (0, pos)] = s.substr (pos + 1, std::string::npos);
-    token                        = strtok (NULL, "\n");
-  }
 }

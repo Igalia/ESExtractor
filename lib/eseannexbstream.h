@@ -1,6 +1,6 @@
 /* ESExtractor
- * Copyright (C) 2022 Igalia, S.L.
- *     Author: Stephane Cerveau <scerveau@igalia.com>
+ * Copyright (C) 2023 Igalia, S.L.
+ *     Author: Charlie Turner <cturner@igalia.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you
  * may not use this file except in compliance with the License.  You
@@ -17,36 +17,21 @@
 
 #pragma once
 
+#include <vector>
+
 #include "esestream.h"
 
-struct IVFHeader {
-  uint32_t signature; // FourCC
-  uint16_t version;
-  uint16_t length_header;
-  uint32_t fourcc;
-  uint16_t width;
-  uint16_t height;
-  uint32_t timescale_den;
-  uint32_t timescale_num;
-  uint32_t frame_count;
-  uint32_t unused;
-};
+class ESEAnnexBStream : public ESEStream {
 
-class ESEIVFStream : public ESEStream {
   public:
-  ESEIVFStream ();
-  ~ESEIVFStream ();
+  ESEAnnexBStream ();
+  ~ESEAnnexBStream ();
 
   virtual void reset ();
 
-  protected:
-  ESEBuffer getStartCode () { return {}; }
   ESEResult processToNextFrame ();
 
-  private:
-  ESEVideoCodec fourccToCodec ();
-
-  IVFHeader m_header;
-  bool      m_headerFound;
-  uint64_t  m_lastPts;
+private:
+  bool m_inTemporalUnit{false};
+  size_t m_remainingBytesInTemporalUnit{0};
 };

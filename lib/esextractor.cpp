@@ -16,6 +16,7 @@
  */
 #include <cassert>
 
+#include "eseannexbstream.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
 #include "esenalstream.h"
@@ -71,60 +72,58 @@ struct ESExtractor {
     return m_stream->processToNextFrame ();
   }
 
-  bool prepare (const char *uri, const char *options)
+  bool prepare (const char *uri, ESEVideoFormat format)
   {
-    ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN;
-
     m_stream = make_unique<ESEStream> ();
-    if (m_stream->prepare (uri, options))
-      format = ese_stream_probe_video_format (m_stream.get ());
+    if (m_stream->prepare (uri, format)) {
+      if (format == ESE_VIDEO_FORMAT_UNKNOWN)
+        format = ese_stream_probe_video_format (m_stream.get ());
+    }
 
     m_stream = nullptr;
     if (format == ESE_VIDEO_FORMAT_NAL) {
       m_stream = make_unique<ESENALStream> ();
     } else if (format == ESE_VIDEO_FORMAT_IVF) {
       m_stream = make_unique<ESEIVFStream> ();
+    } else if (format == ESE_VIDEO_FORMAT_ANNEX_B) {
+      m_stream = make_unique<ESEAnnexBStream> ();
     }
-    if (m_stream && m_stream->prepare (uri, options)) {
+
+    if (m_stream && m_stream->prepare (uri, format)) {
       return (m_stream->processToNextFrame () <= ESE_RESULT_ERROR);
     }
     return false;
   }
 
-  bool prepare_data (ese_read_buffer_func func, void *data, const char *options)
+  bool prepare_data (ese_read_buffer_func func, void *data, ESEVideoFormat format)
   {
-    ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN;
-
     m_stream = make_unique<ESEStream> ();
-    if (m_stream->prepare (func, data, options))
-      format = ese_stream_probe_video_format (m_stream.get ());
+    if (m_stream->prepare (func, data, format)) {
+      if (format == ESE_VIDEO_FORMAT_UNKNOWN)
+	format = ese_stream_probe_video_format (m_stream.get ());
+    }
     m_stream = nullptr;
     if (format == ESE_VIDEO_FORMAT_NAL) {
       m_stream = make_unique<ESENALStream> ();
     } else if (format == ESE_VIDEO_FORMAT_IVF) {
       m_stream = make_unique<ESEIVFStream> ();
+    } else if (format == ESE_VIDEO_FORMAT_ANNEX_B) {
+      m_stream = make_unique<ESEAnnexBStream> ();
     }
-    if (m_stream && m_stream->prepare (func, data, options)) {
+    if (m_stream && m_stream->prepare (func, data, format)) {
       return (m_stream->processToNextFrame () <= ESE_RESULT_ERROR);
     }
     return false;
-  }
-
-  void setOptions (const char *options)
-  {
-    m_stream->reset ();
-    m_stream->setOptions (options);
-    m_stream->processToNextFrame ();
   }
 
   std::unique_ptr<ESEStream> m_stream;
 };
 
 ESExtractor *
-es_extractor_new (const char *uri, const char *options)
+es_extractor_new (const char *uri, ESEVideoFormat format)
 {
   ESExtractor *extractor = new ESExtractor ();
-  if (extractor->prepare (uri, options)) {
+  if (extractor->prepare (uri, format)) {
     return extractor;
   }
 
@@ -133,22 +132,15 @@ es_extractor_new (const char *uri, const char *options)
 }
 
 ESExtractor *
-es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, const char *options)
+es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, ESEVideoFormat format)
 {
   ESExtractor *extractor = new ESExtractor ();
-  if (extractor->prepare_data (func, data, options)) {
+  if (extractor->prepare_data (func, data, format)) {
     return extractor;
   }
 
   es_extractor_teardown (extractor);
   return NULL;
-}
-
-void
-es_extractor_set_options (ESExtractor *extractor, const char *options)
-{
-  ESE_CHECK_VOID (extractor != NULL);
-  extractor->setOptions (options);
 }
 
 ESEResult

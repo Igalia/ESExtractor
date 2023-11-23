@@ -41,7 +41,7 @@ ESExtractor *
 create_es_extractor (const char *fileName, const char *options, uint8_t debug_level)
 {
   es_extractor_set_log_level (debug_level);
-  INFO ("Extracting packets from %s with options %s", fileName, options);
+  INFO ("--- Extracting packets from %s with options %s", fileName, options);
   ESExtractor *esextractor = es_extractor_new (fileName, options);
   return esextractor;
 }

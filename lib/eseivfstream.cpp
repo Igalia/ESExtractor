@@ -47,12 +47,6 @@ ESEIVFStream::reset ()
   ESEStream::reset ();
 }
 
-void
-ESEIVFStream::parseOptions (const char *options)
-{
-  INFO ("Create a IFV stream");
-}
-
 ESEVideoCodec
 ESEIVFStream::fourccToCodec ()
 {

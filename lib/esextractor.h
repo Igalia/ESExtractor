@@ -35,6 +35,7 @@ typedef enum ESEVideoFormat {
   ESE_VIDEO_FORMAT_UNKNOWN = 0,
   ESE_VIDEO_FORMAT_NAL,
   ESE_VIDEO_FORMAT_IVF,
+  ESE_VIDEO_FORMAT_ANNEX_B,
 } ESEVideoFormat;
 
 typedef enum _ESEResult {
@@ -57,9 +58,9 @@ typedef struct _ESEPacket {
 
 #if (defined _WIN32 || defined __CYGWIN__) && !defined(ES_STATIC_COMPILATION)
 #  ifdef BUILDING_ES_EXTRACTOR
-#    define ES_EXTRACTOR_API __declspec(dllexport)
+#    define ES_EXTRACTOR_API __declspec (dllexport)
 #  else
-#    define ES_EXTRACTOR_API __declspec(dllimport)
+#    define ES_EXTRACTOR_API __declspec (dllimport)
 #  endif
 #else
 #  ifdef BUILDING_ES_EXTRACTOR
@@ -77,15 +78,15 @@ extern "C" {
 
 ES_EXTRACTOR_API
 ESExtractor *
-es_extractor_new (const char *uri, const char *options);
+es_extractor_new (const char *uri, ESEVideoFormat format);
 
 ES_EXTRACTOR_API
 ESExtractor *
-es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, const char *options);
+es_extractor_new_with_read_func (ese_read_buffer_func func, void *data, ESEVideoFormat format);
 
 ES_EXTRACTOR_API
 void
-es_extractor_set_options (ESExtractor *extractor, const char *options);
+es_extractor_set_options (ESExtractor *extractor, ESEVideoFormat format);
 
 ES_EXTRACTOR_API
 ESEResult

@@ -36,10 +36,8 @@ class ESEStream {
 
   virtual void reset ();
 
-  bool         prepare (const char *uri, const char *options = nullptr);
-  bool         prepare (ese_read_buffer_func func, void *pointer, const char *options);
-  void         setOptions (const char *options);
-  virtual void parseOptions (const char *options);
+  bool         prepare (const char *uri, ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN);
+  bool         prepare (ese_read_buffer_func func, void *pointer, ESEVideoFormat format = ESE_VIDEO_FORMAT_UNKNOWN);
   /// @brief This method will build the next frame (NAL or AU) available.
   /// @return
   virtual ESEResult processToNextFrame () { return ESE_RESULT_NO_PACKET; };

@@ -47,8 +47,6 @@ class ESENALStream : public ESEStream {
   /// @brief Set frame format, either NAL or a complete access unit.
   /// @param alignment
 
-  void parseOptions (const char *options);
-
   protected:
   ESEBuffer getStartCode () { return { 0x00, 0x00, 0x00, 0x01 }; }
 

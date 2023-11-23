@@ -59,17 +59,6 @@ ESENALStream::alignmentName ()
     return "unknown";
 }
 
-void
-ESENALStream::parseOptions (const char *options)
-{
-  ESEStream::parseOptions (options);
-  if (m_options["alignment"] == "NAL")
-    m_alignment = ESE_PACKET_ALIGNMENT_NAL;
-  else if (m_options["alignment"] == "AU")
-    m_alignment = ESE_PACKET_ALIGNMENT_AU;
-  INFO ("Create a NAL stream with alignment %s", alignmentName ());
-}
-
 int32_t
 ESENALStream::parseStream (int32_t start_position)
 {
