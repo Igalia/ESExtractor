@@ -92,7 +92,7 @@ ESEIVFStream::processToNextFrame ()
   m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
   prepareNextPacket (frame_header.timestamp, frame_header.timestamp,
-    m_lastPts - frame_header.timestamp);
+    frame_header.timestamp - m_lastPts);
 
   m_lastPts = frame_header.timestamp;
 
