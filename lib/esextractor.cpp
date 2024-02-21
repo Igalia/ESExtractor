@@ -16,6 +16,7 @@
  */
 #include <cassert>
 
+#include "eseannexbstream.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
 #include "esenalstream.h"
@@ -84,7 +85,10 @@ struct ESExtractor {
       m_stream = make_unique<ESENALStream> ();
     } else if (format == ESE_VIDEO_FORMAT_IVF) {
       m_stream = make_unique<ESEIVFStream> ();
+    } else if (format == ESE_VIDEO_FORMAT_ANNEX_B) {
+      m_stream = make_unique<ESEAnnexBStream> ();
     }
+
     if (m_stream && m_stream->prepare (uri, options)) {
       return (m_stream->processToNextFrame () <= ESE_RESULT_ERROR);
     }
@@ -103,6 +107,8 @@ struct ESExtractor {
       m_stream = make_unique<ESENALStream> ();
     } else if (format == ESE_VIDEO_FORMAT_IVF) {
       m_stream = make_unique<ESEIVFStream> ();
+    } else if (format == ESE_VIDEO_FORMAT_ANNEX_B) {
+      m_stream = make_unique<ESEAnnexBStream> ();
     }
     if (m_stream && m_stream->prepare (func, data, options)) {
       return (m_stream->processToNextFrame () <= ESE_RESULT_ERROR);
