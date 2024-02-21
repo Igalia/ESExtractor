@@ -47,8 +47,10 @@ class ESEStream {
   int32_t scanMPEGHeader (ESEBuffer buffer, int32_t pos = 0);
   int32_t probeH26x ();
   int32_t probeIVF ();
+  int32_t probeAnnexB ();
   bool    isH264 (ESEBuffer buffer);
   bool    isH265 (ESEBuffer buffer);
+  bool    isAnnexB ();
 
   ESEVideoCodec  codec () { return m_codec; }
   ESEVideoFormat format () { return m_format; }

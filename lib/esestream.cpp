@@ -15,12 +15,15 @@
  * permissions and limitations under the License.
  */
 
-#include "esestream.h"
+#include "eseannexbstream.h"
 #include "esedatareader.h"
 #include "esefilereader.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
+#include "esestream.h"
 #include "eseutils.h"
+
+#include <cassert>
 
 #define MPEG_HEADER_SIZE 3
 #define MAX_SEARCH_SIZE 5
@@ -32,6 +35,8 @@ ese_stream_probe_video_format (ESEStream *stream)
 
   if (stream->probeIVF () != -1)
     format = ESE_VIDEO_FORMAT_IVF;
+  else if (stream->probeAnnexB () != -1)
+    format = ESE_VIDEO_FORMAT_ANNEX_B;
   else if (stream->probeH26x () != -1)
     format = ESE_VIDEO_FORMAT_NAL;
 
@@ -247,6 +252,15 @@ ESEStream::probeIVF ()
   m_buffer = m_reader->getBuffer (sizeof (IVFHeader));
   std::memcpy (&ivf_header, m_buffer.data (), sizeof (IVFHeader));
   if (ivf_header.signature == ESE_MAKE_FOURCC ('D', 'K', 'I', 'F'))
+    return 0;
+  return -1;
+}
+
+int32_t
+ESEStream::probeAnnexB ()
+{
+  assert (m_options.count ("format") == 0 || m_options.count ("format") == 1);
+  if (m_options.count ("format") == 1 && m_options["format"] == "annex-b")
     return 0;
   return -1;
 }

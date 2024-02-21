@@ -5,8 +5,9 @@ The purpose of this library is to parse streams and extract frames with a simple
 [av_read_frame](https://ffmpeg4d.dpldocs.info/ffmpeg.libavformat.avformat.av_read_frame.html).
 
 It supports:
-  - NAL based streams which can be [NAL](https://en.wikipedia.org/wiki/Network_Abstraction_Layer) or [AUs](https://en.wikipedia.org/wiki/Network_Abstraction_Layer#Access_Units) aligned
-  - IVF based streams
+  - NAL based streams which can be [NAL](https://en.wikipedia.org/wiki/Network_Abstraction_Layer) or [AUs](https://en.wikipedia.org/wiki/Network_Abstraction_Layer#Access_Units) aligned  (H26x)
+  - IVF based streams (AV1)
+  - Annex B streams (AV1)
 
 ## Setup
 

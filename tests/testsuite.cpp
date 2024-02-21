@@ -54,6 +54,20 @@ check_ivf_file (const char *uri, int log_level, ESEVideoCodec codec, std::string
   es_extractor_teardown (extractor);
 }
 
+void
+check_annex_b_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets)
+{
+  ESExtractor *extractor;
+
+  extractor = create_es_extractor (uri, "format:annex-b", log_level);
+  assert (extractor);
+  assert (es_extractor_video_format (extractor) == ESE_VIDEO_FORMAT_ANNEX_B);
+  assert (es_extractor_video_codec (extractor) == codec);
+  assert (std::string (es_extractor_video_codec_name (extractor)) == codec_name);
+  assert (parse (extractor) == num_packets);
+  es_extractor_teardown (extractor);
+}
+
 int
 main (int argc, char *argv[])
 {
@@ -67,6 +81,9 @@ main (int argc, char *argv[])
 
   // IVF tests
   check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30);
+
+  // Annex B tests
+  check_annex_b_file (ESE_SAMPLES_FOLDER "/clip.obu", log_level, ESE_VIDEO_CODEC_AV1, "av1", 20);
 
   // Corner case tests
   assert (parse_file (nullptr, nullptr, log_level) == -1);
