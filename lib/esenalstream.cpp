@@ -15,13 +15,10 @@
  * permissions and limitations under the License.
  */
 
-#include "esenalstream.h"
 #include "eselogger.h"
+#include "esenalstream.h"
 #include "esenalu.h"
 #include "esereader.h"
-
-#define MPEG_HEADER_SIZE 3
-#define MAX_SEARCH_SIZE 5
 
 ESENALStream::ESENALStream ()
 : ESEStream (ESE_VIDEO_FORMAT_NAL)
@@ -95,7 +92,7 @@ ESENALStream::parseStream (int32_t start_position)
         DBG ("Found a NAL delimiter, stop pos %d ", pos);
         if (m_frameState == ESE_NAL_FRAME_STATE_NONE) {
           m_frameState = ESE_NAL_FRAME_STATE_START;
-          pos += 3;
+          pos += MPEG_HEADER_SIZE;
           m_frameStartPos = pos;
         } else {
           m_frameState = ESE_NAL_FRAME_STATE_END;
@@ -123,9 +120,9 @@ ESENALStream::readStream ()
     return ESE_RESULT_EOS;
   }
 
-  if (m_bufferPosition >= (uint32_t)m_buffer.size ())
-    m_buffer = m_reader->getBuffer (BUFFER_MAX_PROBE_LENGTH);
-
+  if (m_bufferPosition >= (uint32_t)m_buffer.size ()) {
+    m_buffer = m_reader->getBuffer (m_reader->bufferReadLength () >= MINIMUM_HEADER_SEARCH_FRAME ? m_reader->bufferReadLength () : MINIMUM_HEADER_SEARCH_FRAME);
+  }
   while (m_bufferPosition <= (uint32_t)m_buffer.size () || !m_reader->isEOS ()) {
     pos = parseStream (m_bufferPosition);
     if (pos == (int32_t)-1) {
@@ -152,7 +149,7 @@ ESENALStream::readStream ()
             m_eos = true;
             return ESE_RESULT_LAST_PACKET;
           } else {
-            ESEBuffer buffer = m_reader->getBuffer (BUFFER_MAX_PROBE_LENGTH);
+            ESEBuffer buffer = m_reader->getBuffer (m_reader->bufferReadLength () >= MINIMUM_HEADER_SEARCH_FRAME ? m_reader->bufferReadLength () : MINIMUM_HEADER_SEARCH_FRAME);
             m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
           }
         }

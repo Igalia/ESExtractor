@@ -87,9 +87,9 @@ ESEFileReader::getBuffer (uint32_t size)
   ESEBuffer buffer;
 
   while (m_buffer.size () < size) {
-    if (readFile (BUFFER_MAX_PROBE_LENGTH, m_streamPosition,
+    if (readFile (bufferReadLength (), m_streamPosition,
           true)
-      < BUFFER_MAX_PROBE_LENGTH)
+      < bufferReadLength ())
       break;
   }
   if (m_buffer.size () < size)

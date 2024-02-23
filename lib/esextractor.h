@@ -119,6 +119,10 @@ ES_EXTRACTOR_API
 void
 es_extractor_set_log_level (uint8_t level);
 
+ES_EXTRACTOR_API
+void
+es_extractor_set_buffer_read_length (ESExtractor *extractor, uint32_t buffer_read_length);
+
 #ifdef __cplusplus
 }
 #endif

@@ -117,6 +117,11 @@ struct ESExtractor {
     m_stream->processToNextFrame ();
   }
 
+  void setBufferReadLength (uint32_t len)
+  {
+    m_stream->setBufferReadLength (len);
+  }
+
   std::unique_ptr<ESEStream> m_stream;
 };
 
@@ -162,6 +167,13 @@ es_extractor_read_packet (ESExtractor *extractor, ESEPacket **packet)
     *packet = nullptr;
 
   return res;
+}
+
+void
+es_extractor_set_buffer_read_length (ESExtractor *extractor, uint32_t buffer_read_length)
+{
+  ESE_CHECK_VOID (extractor != NULL);
+  extractor->setBufferReadLength (buffer_read_length);
 }
 
 ESEVideoCodec

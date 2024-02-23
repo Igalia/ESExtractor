@@ -21,6 +21,9 @@
 
 #include "esestream.h"
 
+#define MPEG_HEADER_SIZE 3
+#define MINIMUM_HEADER_SEARCH_FRAME (2 * MPEG_HEADER_SIZE)
+
 typedef enum ESEPacketAlignment {
   ESE_PACKET_ALIGNMENT_NAL = 0,
   ESE_PACKET_ALIGNMENT_AU,
