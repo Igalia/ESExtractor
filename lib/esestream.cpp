@@ -15,15 +15,13 @@
  * permissions and limitations under the License.
  */
 
-#include "esestream.h"
 #include "esedatareader.h"
 #include "esefilereader.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
+#include "esenalstream.h"
+#include "esestream.h"
 #include "eseutils.h"
-
-#define MPEG_HEADER_SIZE 3
-#define MAX_SEARCH_SIZE 5
 
 ESEVideoFormat
 ese_stream_probe_video_format (ESEStream *stream)
@@ -91,6 +89,13 @@ ESEStream::prepare (ese_read_buffer_func read_func, void *pointer, const char *o
 }
 
 void
+ESEStream::setBufferReadLength (int32_t len)
+{
+  if (m_reader)
+    m_reader->setBufferReadLength (len);
+}
+
+void
 ESEStream::setOptions (const char *options)
 {
   parseOptions (options);
@@ -141,6 +146,7 @@ ESEStream::currentPacket ()
 int32_t
 ESEStream::scanMPEGHeader (ESEBuffer buffer, int32_t pos)
 {
+  DBG ("Scan MPEG HEADER pos %d buffer.size () %d", pos, buffer.size ());
   for (uint32_t i = pos; i < buffer.size () - 3; i++) {
     bool found = (buffer[i] == 0x00 && buffer[i + 1] == 0x00
       && buffer[i + 2] == 0x01);
@@ -226,7 +232,7 @@ ESEStream::probeH26x ()
 {
   int32_t offset;
   m_reader->reset ();
-  m_buffer = m_reader->getBuffer (BUFFER_MAX_PROBE_LENGTH);
+  m_buffer = m_reader->getBuffer (MPEG_HEADER_SIZE * MAX_SEARCH_SIZE);
 
   offset = scanMPEGHeader (m_buffer, 0);
   if (offset > 0) {

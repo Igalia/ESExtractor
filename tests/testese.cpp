@@ -139,9 +139,9 @@ class DataProvider {
     ESEBuffer buffer;
 
     while (m_buffer.size () < size) {
-      if (readFile (BUFFER_MAX_PROBE_LENGTH, m_streamPosition,
+      if (readFile (DEFAULT_BUFFER_READ_LENGTH, m_streamPosition,
             true)
-        < BUFFER_MAX_PROBE_LENGTH)
+        < DEFAULT_BUFFER_READ_LENGTH)
         break;
     }
     if (m_buffer.size () < size)

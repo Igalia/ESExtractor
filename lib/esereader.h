@@ -21,7 +21,7 @@
 #include "eseutils.h"
 #include "esextractor.h"
 
-#define BUFFER_MAX_PROBE_LENGTH (128 * 1024)
+#define DEFAULT_BUFFER_READ_LENGTH 1024
 
 class ESEReader {
   public:
@@ -36,6 +36,8 @@ class ESEReader {
   int32_t         readSize () { return m_readSize; }
   virtual int32_t streamSize () { return 0; }
   int32_t         streamPosition () { return m_streamPosition; }
+  uint32_t        bufferReadLength () { return m_bufferReadLength; }
+  void            setBufferReadLength (uint32_t bufferReadLength) { m_bufferReadLength = bufferReadLength; }
 
   bool isEOS () { return m_bufferSize == 0 && m_readSize == streamSize (); }
 
@@ -43,5 +45,6 @@ class ESEReader {
   int32_t   m_streamPosition;
   int32_t   m_bufferSize;
   int32_t   m_readSize;
+  uint32_t  m_bufferReadLength;
   ESEBuffer m_buffer;
 };
