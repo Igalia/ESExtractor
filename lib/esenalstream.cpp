@@ -151,6 +151,7 @@ ESENALStream::readStream ()
           } else {
             ESEBuffer buffer = m_reader->getBuffer (m_reader->bufferReadLength () >= MINIMUM_HEADER_SEARCH_FRAME ? m_reader->bufferReadLength () : MINIMUM_HEADER_SEARCH_FRAME);
             m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
+            m_bufferPosition -= MPEG_HEADER_SIZE;
           }
         }
       }
