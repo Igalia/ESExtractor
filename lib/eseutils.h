@@ -18,10 +18,11 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 #if (__cplusplus < 201402L)
-#  include <memory>
+
 template <class T, class... Args>
 std::unique_ptr<T>
 make_unique (Args &&...args)
