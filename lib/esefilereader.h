@@ -34,12 +34,12 @@ class ESEFileReader : public ESEReader {
   virtual bool prepare ();
 
   virtual ESEBuffer getBuffer (uint32_t size);
-  virtual int32_t   streamSize () { return m_fileSize; }
+  virtual int32_t   streamSize () { return static_cast<int32_t> (m_fileSize); }
 
   private:
   uint32_t readFile (int32_t data_size, int32_t pos = 0, bool append = false);
 
-  std::ifstream m_file;
-  std::string   m_fileName;
-  int32_t       m_fileSize;
+  std::ifstream  m_file;
+  std::string    m_fileName;
+  std::streampos m_fileSize;
 };
