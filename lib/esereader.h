@@ -28,7 +28,7 @@ class ESEReader {
   ESEReader ();
   virtual ~ESEReader ();
   /// @brief Reset the reader
-  virtual void reset (bool full = true);
+  virtual void reset ();
 
   virtual bool      prepare () { return true; }
   virtual ESEBuffer getBuffer (uint32_t size) = 0;

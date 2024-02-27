@@ -69,7 +69,7 @@ check_annex_b_file (const char *uri, int log_level, ESEVideoCodec codec, std::st
 }
 
 int
-main (int argc, char *argv[])
+main (int, char **)
 {
   int log_level = ES_LOG_LEVEL_INFO;
 

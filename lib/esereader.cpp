@@ -15,8 +15,8 @@
  * permissions and limitations under the License.
  */
 
-#include "esereader.h"
 #include "eselogger.h"
+#include "esereader.h"
 #include "eseutils.h"
 
 ESEReader::ESEReader ()
@@ -29,7 +29,7 @@ ESEReader::~ESEReader ()
 }
 
 void
-ESEReader::reset (bool full)
+ESEReader::reset ()
 {
   m_streamPosition = 0;
   m_bufferSize     = 0;

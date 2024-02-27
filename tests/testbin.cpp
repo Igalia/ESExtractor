@@ -50,7 +50,7 @@ class CmdLineParser {
 };
 
 void
-usage (int argc, char *argv[])
+usage (int, char *argv[])
 {
   std::cout << "Usage: " << argv[0] << " -f input_file" << std::endl;
   std::cout << std::endl;

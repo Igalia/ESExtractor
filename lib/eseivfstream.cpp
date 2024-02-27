@@ -48,7 +48,7 @@ ESEIVFStream::reset ()
 }
 
 void
-ESEIVFStream::parseOptions (const char *options)
+ESEIVFStream::parseOptions (const char *)
 {
   INFO ("Create a IFV stream");
 }
