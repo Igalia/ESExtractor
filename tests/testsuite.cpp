@@ -57,7 +57,7 @@ check_ivf_file (const char *uri, int log_level, ESEVideoCodec codec, std::string
 }
 
 int
-main (int argc, char *argv[])
+main ()
 {
   int log_level = ES_LOG_LEVEL_INFO;
 

@@ -19,7 +19,7 @@
 
 #include <cstdint>
 
-typedef int32_t (*ese_read_buffer_func) (void *opaque, unsigned char *buffer, int32_t buffer_size, int32_t offset);
+typedef size_t (*ese_read_buffer_func) (void *opaque, unsigned char *buffer, size_t buffer_size, int32_t offset);
 #define ESEBuffer std::vector<unsigned char>
 
 typedef enum ESEVideoCodec {
@@ -48,7 +48,7 @@ typedef enum _ESEResult {
 
 typedef struct _ESEPacket {
   uint8_t *data;
-  int32_t  data_size;
+  size_t   data_size;
   int32_t  packet_number;
   uint64_t pts;
   uint64_t dts;
@@ -121,7 +121,7 @@ es_extractor_set_log_level (uint8_t level);
 
 ES_EXTRACTOR_API
 void
-es_extractor_set_buffer_read_length (ESExtractor *extractor, uint32_t buffer_read_length);
+es_extractor_set_buffer_read_length (ESExtractor *extractor, size_t buffer_read_length);
 
 #ifdef __cplusplus
 }

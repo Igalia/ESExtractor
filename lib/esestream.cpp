@@ -14,6 +14,7 @@
  * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  */
+#define _CRT_SECURE_NO_WARNINGS 1
 
 #include "esestream.h"
 #include "esedatareader.h"
@@ -89,7 +90,7 @@ ESEStream::prepare (ese_read_buffer_func read_func, void *pointer, const char *o
 }
 
 void
-ESEStream::setBufferReadLength (int32_t len)
+ESEStream::setBufferReadLength (size_t len)
 {
   if (m_reader)
     m_reader->setBufferReadLength (len);
@@ -102,10 +103,10 @@ ESEStream::setOptions (const char *options)
 }
 
 ESEBuffer
-ESEStream::prepareFrame (ESEBuffer buffer, uint32_t start,
-  uint32_t end)
+ESEStream::prepareFrame (ESEBuffer buffer, size_t start,
+  size_t end)
 {
-  uint32_t frame_start = start;
+  size_t frame_start = start;
   if (start > buffer.size () || end > buffer.size ()) {
     throw std::out_of_range ("start and end positions must be within the buffer size");
   }
@@ -263,7 +264,7 @@ ESEStream::parseOptions (const char *options)
   char *token;
   if (options == nullptr)
     return;
-  token = strtok ((char *)options, "\n");
+  token = strtok (const_cast<char *> (options), "\n");
   while (token != NULL) {
     std::string s (token);
     size_t      pos              = s.find (":");

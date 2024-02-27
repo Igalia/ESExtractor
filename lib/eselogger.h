@@ -57,13 +57,13 @@ class Logger {
     va_end (argptr);
   }
 
-  void createLogData (const uint8_t *buffer, uint32_t length, const char *format, ...)
+  void createLogData (const uint8_t *buffer, size_t length, const char *format, ...)
   {
     va_list argptr;
     va_start (argptr, format);
     vfprintf (stdout, format, argptr);
     va_end (argptr);
-    for (uint32_t i = 0; i < length; i++) {
+    for (size_t i = 0; i < length; i++) {
       fprintf (stdout, "0x%.2X ", buffer[i]);
     }
     fprintf (stdout, "\n");

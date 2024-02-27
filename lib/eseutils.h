@@ -48,7 +48,7 @@ make_unique (Args &&...args)
 
 template <typename T>
 static inline std::vector<T>
-subVector (std::vector<T> const &v, int pos, int size)
+subVector (std::vector<T> const &v, size_t pos, size_t size)
 {
   auto first = v.cbegin () + pos;
   auto last  = v.cbegin () + pos + size;

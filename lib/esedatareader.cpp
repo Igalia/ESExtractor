@@ -33,11 +33,11 @@ ESEDataReader::prepare ()
   return true;
 }
 
-uint32_t
-ESEDataReader::readData (int32_t size, int32_t position, bool append)
+size_t
+ESEDataReader::readData (size_t size, int32_t position, bool append)
 {
   ESEBuffer buffer;
-  int32_t   read_size;
+  size_t    read_size;
 
   buffer.resize (size);
   m_streamPosition = position;
@@ -52,7 +52,7 @@ ESEDataReader::readData (int32_t size, int32_t position, bool append)
   }
 
   m_readSize += read_size;
-  m_streamPosition += read_size;
+  m_streamPosition += static_cast<int32_t> (read_size);
 
   if (append) {
     m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
@@ -67,9 +67,9 @@ ESEDataReader::readData (int32_t size, int32_t position, bool append)
 }
 
 ESEBuffer
-ESEDataReader::getBuffer (uint32_t size)
+ESEDataReader::getBuffer (size_t size)
 {
-  uint32_t  real_size = size;
+  size_t    real_size = size;
   ESEBuffer buffer;
 
   while (m_buffer.size () < size) {

@@ -27,12 +27,12 @@ class ESEDataReader : public ESEReader {
   ~ESEDataReader () { }
 
   bool              prepare ();
-  virtual ESEBuffer getBuffer (uint32_t size);
+  virtual ESEBuffer getBuffer (size_t size);
   virtual bool      isEOS () { return m_eos; }
   virtual size_t    streamSize () { return 0; }
 
   private:
-  uint32_t readData (int32_t data_size, int32_t pos = 0, bool append = false);
+  size_t readData (size_t data_size, int32_t pos = 0, bool append = false);
 
   ese_read_buffer_func m_readFunc;
   void                *m_dataPointer;
