@@ -50,7 +50,7 @@ ESEIVFStream::reset ()
 void
 ESEIVFStream::parseOptions (const char *options)
 {
-  INFO ("Create a IFV stream");
+  INFO ("Create a IFV stream with options %s", options);
 }
 
 ESEVideoCodec

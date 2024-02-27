@@ -29,7 +29,7 @@
 #define MAX_SEARCH_SIZE 5
 
 #define ESE_MAKE_FOURCC(a, b, c, d) \
-  ((uint32_t)(a) | ((uint32_t)(b)) << 8 | ((uint32_t)(c)) << 16 | ((uint32_t)(d)) << 24)
+  (static_cast<uint32_t> (a) | (static_cast<uint32_t> (b)) << 8 | (static_cast<uint32_t> (c)) << 16 | (static_cast<uint32_t> (d)) << 24)
 
 class ESEStream {
   public:
@@ -40,7 +40,7 @@ class ESEStream {
 
   bool         prepare (const char *uri, const char *options = nullptr);
   bool         prepare (ese_read_buffer_func func, void *pointer, const char *options);
-  void         setBufferReadLength (int32_t len);
+  void         setBufferReadLength (size_t len);
   void         setOptions (const char *options);
   virtual void parseOptions (const char *options);
   /// @brief This method will build the next frame (NAL or AU) available.
@@ -68,7 +68,7 @@ class ESEStream {
   virtual ESEBuffer getStartCode () { return {}; }
 
   // Prepare the next frame available from the given buffer at given position.
-  ESEBuffer  prepareFrame (ESEBuffer buffer, uint32_t start, uint32_t end);
+  ESEBuffer  prepareFrame (ESEBuffer buffer, size_t start, size_t end);
   ESEPacket *prepareNextPacket (uint64_t pts = 0, uint64_t dts = 0, uint64_t duration = 0);
 
   ESEVideoCodec                      m_codec;

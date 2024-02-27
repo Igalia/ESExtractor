@@ -71,7 +71,7 @@ int32_t
 ESENALStream::parseStream (int32_t start_position)
 {
   int32_t pos         = start_position;
-  int32_t buffer_size = m_buffer.size ();
+  int32_t buffer_size = static_cast<int32_t> (m_buffer.size ());
 
   while (pos < buffer_size) {
     if (!m_mpegDetected) {
@@ -120,12 +120,12 @@ ESENALStream::readStream ()
     return ESE_RESULT_EOS;
   }
 
-  if (m_bufferPosition >= (uint32_t)m_buffer.size ()) {
+  if (m_bufferPosition >= static_cast<uint32_t> (m_buffer.size ())) {
     m_buffer = m_reader->getBuffer (m_reader->bufferReadLength () >= MINIMUM_HEADER_SEARCH_FRAME ? m_reader->bufferReadLength () : MINIMUM_HEADER_SEARCH_FRAME);
   }
-  while (m_bufferPosition <= (uint32_t)m_buffer.size () || !m_reader->isEOS ()) {
+  while (m_bufferPosition <= static_cast<uint32_t> (m_buffer.size ()) || !m_reader->isEOS ()) {
     pos = parseStream (m_bufferPosition);
-    if (pos == (int32_t)-1) {
+    if (pos == static_cast<int32_t> (-1)) {
       return ESE_RESULT_NO_PACKET;
     } else {
       if (m_frameState == ESE_NAL_FRAME_STATE_END) {
@@ -139,7 +139,7 @@ ESENALStream::readStream ()
         return ESE_RESULT_NEW_PACKET;
       } else {
         m_bufferPosition = pos;
-        if (m_bufferPosition >= (uint32_t)m_buffer.size ()) {
+        if (m_bufferPosition >= static_cast<uint32_t> (m_buffer.size ())) {
           if (m_reader->isEOS ()) {
             m_nextFrame = prepareFrame (m_buffer, m_frameStartPos, m_buffer.size ());
             m_nalCount++;
@@ -177,14 +177,14 @@ ESENALStream::processToNextFrame ()
   } else {
     m_currentFrame = {};
     while ((res = readStream ()) <= ESE_RESULT_EOS) {
-      if (!ese_is_aud_nalu (m_nextFrame, (ESENaluCodec)m_codec)) {
+      if (!ese_is_aud_nalu (m_nextFrame, static_cast<ESENaluCodec> (m_codec))) {
         m_currentFrame.insert (m_currentFrame.end (), m_nextFrame.begin (),
           m_nextFrame.end ());
       }
       if (res == ESE_RESULT_EOS
-        || ese_is_new_frame (m_nextFrame, (ESENaluCodec)m_codec)) {
+        || ese_is_new_frame (m_nextFrame, static_cast<ESENaluCodec> (m_codec))) {
         if (m_currentFrame.size () > 0) {
-          const ESEBuffer &audNalu = ese_aud_nalu ((ESENaluCodec)m_codec);
+          const ESEBuffer &audNalu = ese_aud_nalu (static_cast<ESENaluCodec> (m_codec));
           m_currentFrame.insert (m_currentFrame.begin (), audNalu.begin (),
             audNalu.end ());
           prepareNextPacket ();

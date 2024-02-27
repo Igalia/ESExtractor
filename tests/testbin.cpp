@@ -40,7 +40,7 @@ class CmdLineParser {
     static const std::string empty_string ("");
     return empty_string;
   }
-  int optionExists (const std::string &option) const
+  int64_t optionExists (const std::string &option) const
   {
     return std::count (this->tokens.begin (), this->tokens.end (), option);
   }
@@ -50,7 +50,7 @@ class CmdLineParser {
 };
 
 void
-usage (int argc, char *argv[])
+usage (char *argv[])
 {
   std::cout << "Usage: " << argv[0] << " -f input_file" << std::endl;
   std::cout << std::endl;
@@ -69,7 +69,7 @@ main (int argc, char *argv[])
 
   CmdLineParser cmdLine (argc, argv);
   if (cmdLine.optionExists ("-h")) {
-    usage (argc, argv);
+    usage (argv);
     return 0;
   }
 
@@ -82,7 +82,7 @@ main (int argc, char *argv[])
   const std::string &fileName = cmdLine.getOption ("-f");
   if (fileName.empty ()) {
     std::cerr << "Error: No input file specified." << std::endl;
-    usage (argc, argv);
+    usage (argv);
     return 1;
   }
 

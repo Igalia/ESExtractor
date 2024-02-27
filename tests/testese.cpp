@@ -23,6 +23,7 @@
 #include "eselogger.h"
 #include "eseutils.h"
 #include "esextractor.h"
+#include "testese.h"
 
 static void
 dump_packet (ESExtractor *esextractor, ESEPacket *pkt)
@@ -92,7 +93,7 @@ class DataProvider {
     }
   }
 
-  uint32_t getData (uint8_t *out_buffer, uint32_t data_size, int32_t offset)
+  size_t getData (uint8_t *out_buffer, size_t data_size, int32_t offset)
   {
     ESEBuffer buffer;
     size_t    read_size;
@@ -100,8 +101,8 @@ class DataProvider {
     m_file.clear ();
     m_file.seekg (offset, m_file.beg);
     buffer.resize (data_size);
-    m_file.read ((char *)buffer.data (), data_size);
-    read_size = m_file.gcount ();
+    m_file.read (reinterpret_cast<char *> (buffer.data ()), data_size);
+    read_size = static_cast<size_t> (m_file.gcount ());
     buffer.resize (read_size);
     std::memcpy (out_buffer, buffer.data (), buffer.size ());
 
@@ -111,10 +112,10 @@ class DataProvider {
   std::ifstream m_file;
 };
 
-static int
-ReadBufferFunc (void *opaque, unsigned char *pBuf, int size, int32_t offset)
+static size_t
+ReadBufferFunc (void *opaque, unsigned char *pBuf, size_t size, int32_t offset)
 {
-  int read_size = ((DataProvider *)opaque)->getData (pBuf, size, offset);
+  size_t read_size = (static_cast<DataProvider *> (opaque))->getData (pBuf, size, offset);
   DBG ("ReadBuf read_size=%d size=%d offset=%d", read_size, size, offset);
   return read_size;
 }

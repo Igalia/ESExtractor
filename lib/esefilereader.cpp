@@ -34,7 +34,7 @@ ESEFileReader::prepare ()
 
   m_file = std::ifstream (m_fileName, std::ios::binary | std::ios::ate);
   DBG ("The file %s is now %s", m_fileName.c_str (), m_file.is_open () ? "open" : "closed");
-  m_fileSize = m_file.tellg ();
+  m_fileSize = static_cast<size_t> (m_file.tellg ());
   if (!m_file.is_open () || m_fileSize <= 0) {
     ERR ("Unable to open the file %s", m_fileName.c_str ());
     return false;
@@ -43,14 +43,14 @@ ESEFileReader::prepare ()
   return true;
 }
 
-uint32_t
-ESEFileReader::readFile (int32_t data_size, int32_t pos, bool append)
+size_t
+ESEFileReader::readFile (size_t data_size, int32_t pos, bool append)
 {
   ESEBuffer buffer;
   size_t    read_size;
 
   if (!m_fileSize)
-    m_fileSize = m_file.tellg ();
+    m_fileSize = static_cast<size_t> (m_file.tellg ());
   if (m_fileSize <= 0) {
     ERR ("The file is empty. Exit.");
     return 0;
@@ -63,11 +63,11 @@ ESEFileReader::readFile (int32_t data_size, int32_t pos, bool append)
   m_streamPosition = pos;
 
   buffer.resize (data_size);
-  m_file.read ((char *)buffer.data (), data_size);
-  read_size = m_file.gcount ();
+  m_file.read (reinterpret_cast<char *> (buffer.data ()), data_size);
+  read_size = static_cast<size_t> (m_file.gcount ());
   buffer.resize (read_size);
   m_readSize += read_size;
-  m_streamPosition += read_size;
+  m_streamPosition += static_cast<int32_t> (read_size);
   if (append) {
     m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
     DBG ("ReadFile: Append %d to a buffer of new size %zd read %zd", data_size,
@@ -81,9 +81,9 @@ ESEFileReader::readFile (int32_t data_size, int32_t pos, bool append)
 }
 
 ESEBuffer
-ESEFileReader::getBuffer (uint32_t size)
+ESEFileReader::getBuffer (size_t size)
 {
-  uint32_t  real_size = size;
+  size_t    real_size = size;
   ESEBuffer buffer;
 
   while (m_buffer.size () < size) {
@@ -97,6 +97,6 @@ ESEFileReader::getBuffer (uint32_t size)
 
   buffer = subVector (m_buffer, 0, real_size);
   m_buffer.erase (m_buffer.begin (), m_buffer.begin () + real_size);
-  m_bufferSize = m_buffer.size ();
+  m_bufferSize = static_cast<int32_t> (m_buffer.size ());
   return buffer;
 }

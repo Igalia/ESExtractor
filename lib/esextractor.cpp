@@ -117,7 +117,7 @@ struct ESExtractor {
     m_stream->processToNextFrame ();
   }
 
-  void setBufferReadLength (uint32_t len)
+  void setBufferReadLength (size_t len)
   {
     m_stream->setBufferReadLength (len);
   }
@@ -170,7 +170,7 @@ es_extractor_read_packet (ESExtractor *extractor, ESEPacket **packet)
 }
 
 void
-es_extractor_set_buffer_read_length (ESExtractor *extractor, uint32_t buffer_read_length)
+es_extractor_set_buffer_read_length (ESExtractor *extractor, size_t buffer_read_length)
 {
   ESE_CHECK_VOID (extractor != NULL);
   extractor->setBufferReadLength (buffer_read_length);
