@@ -15,8 +15,8 @@
  * permissions and limitations under the License.
  */
 
-#include "eselogger.h"
 #include "esenalstream.h"
+#include "eselogger.h"
 #include "esenalu.h"
 #include "esereader.h"
 

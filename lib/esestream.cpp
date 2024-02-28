@@ -15,12 +15,12 @@
  * permissions and limitations under the License.
  */
 
+#include "esestream.h"
 #include "esedatareader.h"
 #include "esefilereader.h"
 #include "eseivfstream.h"
 #include "eselogger.h"
 #include "esenalstream.h"
-#include "esestream.h"
 #include "eseutils.h"
 
 ESEVideoFormat

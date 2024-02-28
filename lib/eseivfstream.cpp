@@ -91,17 +91,20 @@ ESEIVFStream::processToNextFrame ()
     m_codec       = fourccToCodec ();
   }
   m_buffer = m_reader->getBuffer (sizeof (IVFFrameHeader));
+  if (m_buffer.size ()) {
+    std::memcpy (&frame_header, m_buffer.data (), sizeof (IVFFrameHeader));
 
-  std::memcpy (&frame_header, m_buffer.data (), sizeof (IVFFrameHeader));
+    m_buffer       = m_reader->getBuffer (frame_header.frame_size);
+    m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
 
-  m_buffer       = m_reader->getBuffer (frame_header.frame_size);
-  m_currentFrame = prepareFrame (m_buffer, 0, m_buffer.size ());
+    prepareNextPacket (frame_header.timestamp, frame_header.timestamp,
+      m_lastPts - frame_header.timestamp);
 
-  prepareNextPacket (frame_header.timestamp, frame_header.timestamp,
-    m_lastPts - frame_header.timestamp);
-
-  m_lastPts = frame_header.timestamp;
-
+    m_lastPts = frame_header.timestamp;
+  } else {
+    DBG ("The last buffer was 0, no new packet, return EOS");
+    return ESE_RESULT_EOS;
+  }
   if (m_reader->isEOS ())
     res = ESE_RESULT_LAST_PACKET;
 
