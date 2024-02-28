@@ -29,7 +29,7 @@ ESEReader::~ESEReader ()
 }
 
 void
-ESEReader::reset (bool full)
+ESEReader::reset ()
 {
   m_bufferReadLength = DEFAULT_BUFFER_READ_LENGTH;
   m_streamPosition   = 0;
