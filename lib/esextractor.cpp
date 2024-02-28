@@ -175,13 +175,6 @@ es_extractor_read_packet (ESExtractor *extractor, ESEPacket **packet)
   return res;
 }
 
-void
-es_extractor_set_buffer_read_length (ESExtractor *extractor, size_t buffer_read_length)
-{
-  ESE_CHECK_VOID (extractor != NULL);
-  extractor->setBufferReadLength (buffer_read_length);
-}
-
 ESEVideoCodec
 es_extractor_video_codec (ESExtractor *extractor)
 {

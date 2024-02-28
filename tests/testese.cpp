@@ -121,14 +121,13 @@ ReadBufferFunc (void *opaque, unsigned char *pBuf, size_t size, int32_t offset)
 }
 
 int
-parse_data (const char *fileName, const char *options, uint8_t debug_level, int bufferReadLength)
+parse_data (const char *fileName, const char *options, uint8_t debug_level)
 {
   es_extractor_set_log_level (debug_level);
   INFO ("Extracting packets from %s with options %s", fileName, options);
   std::unique_ptr<DataProvider> pDataProvider = make_unique<DataProvider> (fileName);
 
   ESExtractor *esextractor = es_extractor_new_with_read_func (&ReadBufferFunc, pDataProvider.get (), options);
-  es_extractor_set_buffer_read_length (esextractor, bufferReadLength);
   if (!esextractor) {
     ERR ("Unable to discover a compatible stream. Exit");
     return -1;
