@@ -35,6 +35,7 @@ class ESEFileReader : public ESEReader {
 
   virtual ESEBuffer getBuffer (uint32_t size);
   virtual int32_t   streamSize () { return m_fileSize; }
+  virtual bool      isEOS () { return m_bufferSize == 0 && m_readSize == streamSize (); }
 
   private:
   uint32_t readFile (int32_t data_size, int32_t pos = 0, bool append = false);

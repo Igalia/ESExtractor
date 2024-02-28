@@ -21,31 +21,68 @@ ESEDataReader::ESEDataReader (ese_read_buffer_func read_func, void *pointer)
 {
   m_readFunc    = read_func;
   m_dataPointer = pointer;
-  reset ();
-}
+  m_eos         = false;
 
-ESEDataReader::~ESEDataReader ()
-{
+  reset ();
 }
 
 bool
 ESEDataReader::prepare ()
 {
+  m_eos = false;
   return true;
+}
+
+uint32_t
+ESEDataReader::readData (int32_t size, int32_t position, bool append)
+{
+  ESEBuffer buffer;
+  int32_t   read_size;
+
+  buffer.resize (size);
+  m_streamPosition = position;
+
+  // Ask the app to provide data with size from a position in the stream. Can return less than expected.
+  read_size = m_readFunc (m_dataPointer, buffer.data (), size, m_streamPosition);
+  //
+  buffer.resize (read_size);
+  if (read_size == 0) {
+    m_eos = true;
+    return read_size;
+  }
+
+  m_readSize += read_size;
+  m_streamPosition += read_size;
+
+  if (append) {
+    m_buffer.insert (m_buffer.end (), buffer.begin (), buffer.end ());
+    INFO ("ReadFile: Append to a buffer of new size %zd requested size %d read %zd", size,
+      m_buffer.size (), read_size);
+  } else {
+    m_buffer = buffer;
+    DBG ("ReadFile: Read buffer %d of size read %zd", size, read_size);
+  }
+  m_bufferSize = m_buffer.size ();
+  return read_size;
 }
 
 ESEBuffer
 ESEDataReader::getBuffer (uint32_t size)
 {
+  uint32_t  real_size = size;
   ESEBuffer buffer;
 
-  if (!m_readFunc)
-    return ESEBuffer ();
+  while (m_buffer.size () < size) {
+    if (readData (bufferReadLength (), m_streamPosition,
+          true)
+      < bufferReadLength ())
+      break;
+  }
+  if (m_buffer.size () < size)
+    real_size = m_buffer.size ();
 
-  buffer.resize (size);
-  uint32_t read_size = m_readFunc (m_dataPointer, buffer.data (), size, m_streamPosition);
-  if (read_size < size)
-    buffer.resize (read_size);
-
+  buffer = subVector (m_buffer, 0, real_size);
+  m_buffer.erase (m_buffer.begin (), m_buffer.begin () + real_size);
+  m_bufferSize = m_buffer.size ();
   return buffer;
 }

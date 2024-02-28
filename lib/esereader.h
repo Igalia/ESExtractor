@@ -39,7 +39,7 @@ class ESEReader {
   uint32_t        bufferReadLength () { return m_bufferReadLength; }
   void            setBufferReadLength (uint32_t bufferReadLength) { m_bufferReadLength = bufferReadLength; }
 
-  bool isEOS () { return m_bufferSize == 0 && m_readSize == streamSize (); }
+  virtual bool isEOS () = 0;
 
   protected:
   int32_t   m_streamPosition;

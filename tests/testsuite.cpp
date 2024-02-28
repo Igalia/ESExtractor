@@ -73,7 +73,9 @@ main (int argc, char *argv[])
   check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30, 1024);
   check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30, 1024 * 1024);
   // Parse with data provider
-  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.avc", nullptr, log_level) == 22);
+  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.avc", nullptr, log_level, 1024) == 22);
+  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.hevc", nullptr, log_level, 17) == 23);
+  assert (parse_data (ESE_SAMPLES_FOLDER "/clip-a.ivf", nullptr, log_level, 1024 * 1024) == 30);
 
   // Corner case tests
   assert (parse_file (nullptr, nullptr, log_level) == -1);
