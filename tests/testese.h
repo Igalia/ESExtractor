@@ -27,4 +27,4 @@ parse (ESExtractor *extractor);
 int
 parse_file (const char *fileName, const char *options, uint8_t debug_level);
 int
-parse_data (const char *fileName, const char *options, uint8_t debug_level, int bufferReadLength);
+parse_data (const char *fileName, const char *options, uint8_t debug_level);

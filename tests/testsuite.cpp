@@ -23,12 +23,11 @@
 #include "testese.h"
 
 void
-check_nal_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets_nal, int num_packets_au, int buffer_size)
+check_nal_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets_nal, int num_packets_au)
 {
   ESExtractor *extractor;
 
   extractor = create_es_extractor (uri, nullptr, log_level);
-  es_extractor_set_buffer_read_length (extractor, buffer_size);
   assert (extractor);
   assert (es_extractor_video_format (extractor) == ESE_VIDEO_FORMAT_NAL);
   assert (es_extractor_video_codec (extractor) == codec);
@@ -42,12 +41,11 @@ check_nal_file (const char *uri, int log_level, ESEVideoCodec codec, std::string
 }
 
 void
-check_ivf_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets, int buffer_size)
+check_ivf_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets)
 {
   ESExtractor *extractor;
 
   extractor = create_es_extractor (uri, nullptr, log_level);
-  es_extractor_set_buffer_read_length (extractor, buffer_size);
   assert (extractor);
   assert (es_extractor_video_format (extractor) == ESE_VIDEO_FORMAT_IVF);
   assert (es_extractor_video_codec (extractor) == codec);
@@ -57,12 +55,11 @@ check_ivf_file (const char *uri, int log_level, ESEVideoCodec codec, std::string
 }
 
 void
-check_annex_b_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets, int buffer_size)
+check_annex_b_file (const char *uri, int log_level, ESEVideoCodec codec, std::string codec_name, int num_packets)
 {
   ESExtractor *extractor;
 
   extractor = create_es_extractor (uri, "format:annex-b", log_level);
-  es_extractor_set_buffer_read_length (extractor, buffer_size);
   assert (extractor);
   assert (es_extractor_video_format (extractor) == ESE_VIDEO_FORMAT_ANNEX_B);
   assert (es_extractor_video_codec (extractor) == codec);
@@ -77,23 +74,18 @@ main ()
   int log_level = ES_LOG_LEVEL_INFO;
 
   // NAL tests
-  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.avc", log_level, ESE_VIDEO_CODEC_H264, "h264", 22, 10, 57);
-  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.avc", log_level, ESE_VIDEO_CODEC_H264, "h264", 22, 10, 1024);
-  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.avc", log_level, ESE_VIDEO_CODEC_H264, "h264", 22, 10, 1024 * 1024);
-  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.hevc", log_level, ESE_VIDEO_CODEC_H265, "h265", 23, 10, 28);
-  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.hevc", log_level, ESE_VIDEO_CODEC_H265, "h265", 23, 10, 1024);
-  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.hevc", log_level, ESE_VIDEO_CODEC_H265, "h265", 23, 10, 1024);
+  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.avc", log_level, ESE_VIDEO_CODEC_H264, "h264", 22, 10);
+  check_nal_file (ESE_SAMPLES_FOLDER "/Sample_10.hevc", log_level, ESE_VIDEO_CODEC_H265, "h265", 23, 10);
   // IVF tests
-  check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30, 107);
-  check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30, 1024);
-  check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30, 1024 * 1024);
+  check_ivf_file (ESE_SAMPLES_FOLDER "/clip-a.ivf", log_level, ESE_VIDEO_CODEC_AV1, "av1", 30);
+
   // Parse with data provider
-  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.avc", nullptr, log_level, 1024) == 22);
-  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.hevc", nullptr, log_level, 17) == 23);
-  assert (parse_data (ESE_SAMPLES_FOLDER "/clip-a.ivf", nullptr, log_level, 1024 * 1024) == 30);
+  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.avc", nullptr, log_level) == 22);
+  assert (parse_data (ESE_SAMPLES_FOLDER "/Sample_10.hevc", nullptr, log_level) == 23);
+  assert (parse_data (ESE_SAMPLES_FOLDER "/clip-a.ivf", nullptr, log_level) == 30);
 
   // Annex B tests
-  check_annex_b_file (ESE_SAMPLES_FOLDER "/clip.obu", log_level, ESE_VIDEO_CODEC_AV1, "av1", 20, 1024 * 1024);
+  check_annex_b_file (ESE_SAMPLES_FOLDER "/clip.obu", log_level, ESE_VIDEO_CODEC_AV1, "av1", 20);
 
   // Corner case tests
   assert (parse_file (nullptr, nullptr, log_level) == -1);
