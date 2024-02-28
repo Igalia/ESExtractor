@@ -28,23 +28,23 @@ class ESEReader {
   ESEReader ();
   virtual ~ESEReader ();
   /// @brief Reset the reader
-  virtual void reset (bool full = true);
+  virtual void reset ();
 
-  virtual bool      prepare () { return true; }
+  virtual bool      prepare ()                = 0;
   virtual ESEBuffer getBuffer (uint32_t size) = 0;
 
-  int32_t         readSize () { return m_readSize; }
-  virtual int32_t streamSize () { return 0; }
-  int32_t         streamPosition () { return m_streamPosition; }
-  uint32_t        bufferReadLength () { return m_bufferReadLength; }
-  void            setBufferReadLength (uint32_t bufferReadLength) { m_bufferReadLength = bufferReadLength; }
+  int32_t        readSize () { return m_readSize; }
+  virtual size_t streamSize () = 0;
+  int32_t        streamPosition () { return m_streamPosition; }
+  uint32_t       bufferReadLength () { return m_bufferReadLength; }
+  void           setBufferReadLength (uint32_t bufferReadLength) { m_bufferReadLength = bufferReadLength; }
 
   virtual bool isEOS () = 0;
 
   protected:
   int32_t   m_streamPosition;
   int32_t   m_bufferSize;
-  int32_t   m_readSize;
+  size_t    m_readSize;
   uint32_t  m_bufferReadLength;
   ESEBuffer m_buffer;
 };

@@ -34,7 +34,7 @@ class ESEFileReader : public ESEReader {
   virtual bool prepare ();
 
   virtual ESEBuffer getBuffer (uint32_t size);
-  virtual int32_t   streamSize () { return m_fileSize; }
+  virtual size_t    streamSize () { return m_fileSize; }
   virtual bool      isEOS () { return m_bufferSize == 0 && m_readSize == streamSize (); }
 
   private:
@@ -42,5 +42,5 @@ class ESEFileReader : public ESEReader {
 
   std::ifstream m_file;
   std::string   m_fileName;
-  int32_t       m_fileSize;
+  size_t        m_fileSize;
 };
