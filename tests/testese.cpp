@@ -128,6 +128,7 @@ parse_data (const char *fileName, const char *options, uint8_t debug_level, int 
   std::unique_ptr<DataProvider> pDataProvider = make_unique<DataProvider> (fileName);
 
   ESExtractor *esextractor = es_extractor_new_with_read_func (&ReadBufferFunc, pDataProvider.get (), options);
+  es_extractor_set_buffer_read_length (esextractor, bufferReadLength);
   if (!esextractor) {
     ERR ("Unable to discover a compatible stream. Exit");
     return -1;
