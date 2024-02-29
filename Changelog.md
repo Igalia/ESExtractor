@@ -1,3 +1,7 @@
+v0.4.0
+  - Bug fix the H26x NAL support with large files
+  - Add OBU annexB support
+
 v0.3.3
   - Add es_extractor_new_with_read_func api
   - clean the clang-format as a pre-commit hook
