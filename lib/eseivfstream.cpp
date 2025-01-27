@@ -53,6 +53,18 @@ ESEIVFStream::parseOptions (const char *options)
   INFO ("Create a IFV stream with options %s", options);
 }
 
+void
+ESEIVFStream::printHeader ()
+{
+  INFO ("IVF header");
+  INFO ("  fourcc: %d", fourccToCodec ());
+  INFO ("  width: %d", m_header.width);
+  INFO ("  height: %d", m_header.height);
+  INFO ("  frame count: %d", m_header.frame_count);
+  INFO ("  timescale: %d/%d", m_header.timescale_num, m_header.timescale_den);
+  INFO ("  length header: %d", m_header.length_header);
+}
+
 ESEVideoCodec
 ESEIVFStream::fourccToCodec ()
 {
@@ -89,6 +101,7 @@ ESEIVFStream::processToNextFrame ()
     std::memcpy (&m_header, m_buffer.data (), sizeof (IVFHeader));
     m_headerFound = true;
     m_codec       = fourccToCodec ();
+    printHeader ();
   }
   m_buffer = m_reader->getBuffer (sizeof (IVFFrameHeader));
   if (m_buffer.size ()) {

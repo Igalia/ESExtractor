@@ -45,6 +45,7 @@ class ESEIVFStream : public ESEStream {
 
   private:
   ESEVideoCodec fourccToCodec ();
+  void          printHeader ();
   void          parseOptions (const char *options);
 
   IVFHeader m_header;
