@@ -19,9 +19,6 @@
 #include "eselogger.h"
 #include "esereader.h"
 
-#define IVF_HEADER_SIZE sizeof (IVFHeader)
-#define IVF_FRAME_HEADER_SIZE sizeof (IVFFrameHeader)
-
 #pragma pack(push, 1)
 struct IVFFrameHeader {
   uint32_t frame_size;
